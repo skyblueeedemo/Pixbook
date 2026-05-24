@@ -1,0 +1,34 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "修图预约"
+      }
+    },
+    {
+      "path": "pages/success/index",
+      "style": {
+        "navigationBarTitleText": "预约成功"
+      }
+    },
+    {
+      "path": "pages/query/index",
+      "style": {
+        "navigationBarTitleText": "订单查询"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "修图约",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#F5F5F5"
+  },
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^u-(.*)": "@/components/ui/$1.vue"
+    }
+  }
+}

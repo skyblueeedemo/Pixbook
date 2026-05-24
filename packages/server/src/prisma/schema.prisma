@@ -1,0 +1,71 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ─── 排期表 ────────────────────────────────────────────
+model Schedule {
+  id          Int      @id @default(autoincrement())
+  date        DateTime @unique @db.Date
+  maxSlots    Int      @default(5) @map("max_slots")
+  bookedSlots Int      @default(0) @map("booked_slots")
+  status      Int      @default(0) @map("status") // 0=正常 1=强制关闭
+  version     Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  orders Order[]
+
+  @@map("schedules")
+}
+
+// ─── 订单表 ────────────────────────────────────────────
+model Order {
+  id              Int      @id @default(autoincrement())
+  orderNo         String   @unique @map("order_no") @db.VarChar(32)
+  customerName    String   @map("customer_name") @db.VarChar(20)
+  customerPhone   String   @map("customer_phone") @db.VarChar(11)
+  scheduleDate    DateTime @map("schedule_date") @db.Date
+  photoCount      Int      @map("photo_count")
+  requirements    String   @db.Text
+  additionalNotes String?  @map("additional_notes") @db.Text
+  status          Int      @default(0) @map("status") // 0=待确认 1=修图中 2=待交付 3=已完成 4=已取消
+  idempotencyKey  String   @unique @map("idempotency_key") @db.VarChar(64)
+  userId          Int?     @map("user_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  schedule   Schedule @relation(fields: [scheduleDate], references: [date])
+  user       User?    @relation(fields: [userId], references: [id])
+
+  @@index([scheduleDate, customerPhone])
+  @@map("orders")
+}
+
+// ─── 用户表（微信 openid）──────────────────────────────
+model User {
+  id          Int      @id @default(autoincrement())
+  openid      String   @unique @db.VarChar(64)
+  nickname    String?  @db.VarChar(64)
+  avatarUrl   String?  @map("avatar_url") @db.VarChar(512)
+  createdAt   DateTime @default(now()) @map("created_at")
+  lastLoginAt DateTime @default(now()) @map("last_login_at")
+
+  orders Order[]
+
+  @@map("users")
+}
+
+// ─── 配置表 ────────────────────────────────────────────
+model Config {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique @db.VarChar(64)
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("config")
+}

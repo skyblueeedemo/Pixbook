@@ -1,0 +1,6 @@
+node_modules/
+dist/
+coverage/
+.unpackage/
+*.log
+pnpm-lock.yaml

@@ -1,0 +1,17 @@
+{
+  "name": "修图约",
+  "appid": "__UNI__XXXXXX",
+  "description": "修图服务预约排期",
+  "versionName": "0.1.0",
+  "versionCode": "1",
+  "mp-weixin": {
+    "appid": "wxREPLACE_ME",
+    "setting": {
+      "urlCheck": false,
+      "es6": true,
+      "postcss": true,
+      "minified": true
+    },
+    "usingComponents": true
+  }
+}
