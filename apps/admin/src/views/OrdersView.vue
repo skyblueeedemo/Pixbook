@@ -25,7 +25,9 @@
       <el-table :data="orders" stripe v-loading="loading" class="otb">
         <el-table-column prop="orderId" label="订单号" width="160" />
         <el-table-column prop="customerName" label="客户" width="80" />
-        <el-table-column prop="customerPhone" label="手机号" width="120" />
+        <el-table-column label="手机号" width="120">
+          <template #default="{ row }">{{ maskPhone(row.customerPhone) }}</template>
+        </el-table-column>
         <el-table-column label="预约日期" width="120">
           <template #default="{ row }">{{ fmt(row.scheduleDate) }}</template>
         </el-table-column>
@@ -63,7 +65,7 @@
           <el-descriptions :column="1" border>
             <el-descriptions-item label="订单号">{{ detail.orderId }}</el-descriptions-item>
             <el-descriptions-item label="客户姓名">{{ detail.customerName }}</el-descriptions-item>
-            <el-descriptions-item label="手机号">{{ detail.customerPhone }}</el-descriptions-item>
+            <el-descriptions-item label="手机号">{{ maskPhone(detail.customerPhone) }}</el-descriptions-item>
             <el-descriptions-item label="预约日期">{{ fmt(detail.scheduleDate) }}</el-descriptions-item>
             <el-descriptions-item label="修图张数">{{ detail.photoCount }}</el-descriptions-item>
             <el-descriptions-item label="修图需求">{{ detail.requirements }}</el-descriptions-item>
@@ -128,6 +130,7 @@ const statusTags: Record<number, string> = { 0: 'warning', 1: '', 2: 'primary', 
 function statusTag(s: number) { return statusTags[s] ?? 'info'; }
 
 function fmt(d: string) { return (d ?? '').slice(0, 10); }
+function maskPhone(p: string) { return p.length === 11 ? p.slice(0, 3) + '****' + p.slice(7) : p; }
 
 const nextStatusMap: Record<number, { value: number; label: string; type: any }[]> = {
   0: [{ value: 1, label: '→ 已确认', type: '' }, { value: 5, label: '取消订单', type: 'danger' }],
