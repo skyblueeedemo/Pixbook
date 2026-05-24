@@ -5,8 +5,12 @@
 
       <!-- Summary cards -->
       <el-row :gutter="12" style="margin-bottom:16px">
-        <el-col :span="6" v-for="c in summaryCards" :key="c.label">
-          <el-card shadow="hover">
+        <el-col :span="6" v-for="(c, i) in summaryCards" :key="c.label">
+          <el-card
+            shadow="hover"
+            :class="['dsc', { 'dsc-sel': activeFilter === i }]"
+            @click="filterSummary(i)"
+          >
             <div class="dcv">{{ c.value }}</div>
             <div class="dcl">{{ c.label }}</div>
           </el-card>
@@ -31,9 +35,9 @@
       <el-card v-loading="loading">
         <template #header>
           <span style="font-weight:600">
-            {{ activeStatus === null ? '最近订单' : statusLabel(activeStatus) + ' · ' + filteredTotal + ' 单' }}
+            {{ tableTitle }}
           </span>
-          <el-button v-if="activeStatus !== null" size="small" style="float:right" @click="filterBy(null)">显示全部</el-button>
+          <el-button v-if="activeStatus !== null || activeFilter !== null" size="small" style="float:right" @click="clearAll">显示全部</el-button>
         </template>
         <el-table :data="orders" stripe size="small">
           <el-table-column prop="orderId" label="订单号" width="150" />
@@ -55,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import AdminLayout from '@/components/AdminLayout.vue';
 import api from '@/api';
 
@@ -71,6 +75,7 @@ interface Order {
 const orders = ref<Order[]>([]);
 const loading = ref(false);
 const activeStatus = ref<number | null>(null);
+const activeFilter = ref<number | null>(null); // 0=today, 1=month, 2=pending, 3=total
 const filteredTotal = ref(0);
 
 const statusList = [
@@ -98,6 +103,15 @@ function st(s: number) { return stags[s] ?? 'info'; }
 function statusLabel(s: number) { return statusList.find((x) => x.status === s)?.label ?? ''; }
 function fmt(d: string) { return (d ?? '').slice(0, 10); }
 
+const tableTitle = computed(() => {
+  if (activeFilter.value === 0) return `今日预约 · ${filteredTotal.value} 单`;
+  if (activeFilter.value === 1) return `本月订单 · ${filteredTotal.value} 单`;
+  if (activeFilter.value === 2) return `待处理 · ${filteredTotal.value} 单`;
+  if (activeFilter.value === 3) return `全部订单 · ${filteredTotal.value} 单`;
+  if (activeStatus.value !== null) return `${statusLabel(activeStatus.value)} · ${filteredTotal.value} 单`;
+  return '最近订单';
+});
+
 async function loadAll() {
   loading.value = true;
   try {
@@ -120,10 +134,11 @@ async function loadAll() {
       api.get('/admin/orders', { params: { status: 5, page: 1, pageSize: 1 } }),
     ]);
 
-    summaryCards[0].value = String(results[0].data.data.total);
-    summaryCards[1].value = String(results[1].data.data.total);
-    summaryCards[2].value = String(results[2].data.data.total);
-    summaryCards[3].value = String(results[3].data.data.total);
+    summaryCards[0].value = String(results[0].data.data.total);  // 今日
+    summaryCards[1].value = String(results[1].data.data.total);   // 本月
+    // 待处理 = 待确认 + 已确认 + 修图中
+    summaryCards[2].value = String(results[4].data.data.total + results[5].data.data.total + results[6].data.data.total);
+    summaryCards[3].value = String(results[3].data.data.total);   // 总单
 
     for (let i = 0; i < 6; i++) {
       statusCards[i].count = String(results[4 + i].data.data.total);
@@ -136,6 +151,44 @@ async function loadAll() {
 
 async function fetchOrders() {
   try {
+    const today = new Date().toISOString().slice(0, 10);
+    const thisMonth = today.slice(0, 7);
+
+    // If summary filter active
+    if (activeFilter.value === 0) {
+      // Today
+      const res = await api.get('/admin/orders', { params: { dateFrom: today, dateTo: today, page: 1, pageSize: 20 } });
+      orders.value = res.data.data.list;
+      filteredTotal.value = res.data.data.total;
+      return;
+    }
+    if (activeFilter.value === 1) {
+      // This month
+      const res = await api.get('/admin/orders', { params: { dateFrom: `${thisMonth}-01`, dateTo: today, page: 1, pageSize: 20 } });
+      orders.value = res.data.data.list;
+      filteredTotal.value = res.data.data.total;
+      return;
+    }
+    if (activeFilter.value === 2) {
+      // Pending = 待确认 + 已确认 + 修图中
+      const [r0, r1, r2] = await Promise.all([0, 1, 2].map((s) =>
+        api.get('/admin/orders', { params: { status: s, page: 1, pageSize: 10 } }),
+      ));
+      orders.value = [...r0.data.data.list, ...r1.data.data.list, ...r2.data.data.list]
+        .sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? ''))
+        .slice(0, 20);
+      filteredTotal.value = r0.data.data.total + r1.data.data.total + r2.data.data.total;
+      return;
+    }
+    if (activeFilter.value === 3) {
+      // All
+      const res = await api.get('/admin/orders', { params: { page: 1, pageSize: 20 } });
+      orders.value = res.data.data.list;
+      filteredTotal.value = res.data.data.total;
+      return;
+    }
+
+    // Status filter
     const params: any = { page: 1, pageSize: 20 };
     if (activeStatus.value !== null) params.status = activeStatus.value;
     const res = await api.get('/admin/orders', { params });
@@ -144,8 +197,23 @@ async function fetchOrders() {
   } catch { /* silent */ }
 }
 
+function filterSummary(index: number) {
+  activeFilter.value = activeFilter.value === index ? null : index;
+  activeStatus.value = null;
+  loading.value = true;
+  fetchOrders().then(() => { loading.value = false; });
+}
+
+function clearAll() {
+  activeFilter.value = null;
+  activeStatus.value = null;
+  loading.value = true;
+  fetchOrders().then(() => { loading.value = false; });
+}
+
 async function filterBy(status: number | null) {
-  activeStatus.value = status;
+  activeFilter.value = null;
+  activeStatus.value = activeStatus.value === status ? null : status;
   loading.value = true;
   await fetchOrders();
   loading.value = false;
