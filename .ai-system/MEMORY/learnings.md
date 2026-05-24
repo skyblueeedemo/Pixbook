@@ -56,9 +56,54 @@
 
 ---
 
+## Phase 2 小程序开发
+
+### L006 · uni-app 依赖版本必须全部一致
+
+**发现：** `@dcloudio/uni-*` 系列包版本号格式为 `M.m.p-YYYYMMDDNNNNNNN`，不同次发布的包内部 API 不兼容。混用 v2 和 v3 alpha 版本导致 `global.uniPlugin` undefined 错误。
+
+**解决：** 使用 `npx degit dcloudio/uni-preset-vue#vite-ts` 拉取官方模板，复制其 `package.json` 中的全部精确版本号 (`3.0.0-4080420251103001`)。
+
+**教训：** uni-app 生态不是 semver — 版本号中的日期编码（4080420251103001 = 2025-11-03 build）至关重要。永远整批替换，不单独升级某个包。
+
+---
+
+### L007 · 微信小程序 CSS：scoped / rpx / flexbox 是三大坑
+
+**发现：**
+- `scoped` 样式编译后残留 `data-v-xxx` 属性，选择器无法匹配
+- `rpx` 单位在 `inline-block` + `%` 宽度的网格中计算异常
+- `flexbox` 在微信原生组件中的表现与 web 不一致
+
+**解决：** 全部放弃，改用全局 `<style>` + `px` + `inline-block`。
+
+**教训：** 微信小程序的渲染引擎不是浏览器 — 它是一个简化的 native 渲染层，CSS 支持是子集。用最古老、最简单的 CSS 写法最稳。
+
+---
+
+### L008 · 微信 `input` 是原生组件，不认 padding
+
+**发现：** 微信的 `input`/`textarea` 是原生控件，不是 HTML 元素。`padding`、`border` 等属性渲染不完全，导致输入框内文字显示为半截。
+
+**解决：** 外层 `<view>` 画边框 + padding，内层 `<input>` 设为无边框 + `height:44px` + `line-height:44px`。
+
+**教训：** 凡是碰到输入框样式问题，第一时间想到"原生组件限制"，外层包容器是标准 workaround。
+
+---
+
+### L009 · 真机预览：localhost 在手机上不存在
+
+**发现：** 微信开发者工具模拟器可以 `localhost:3000`，但扫码真机预览时手机的 `localhost` 指向手机自身。
+
+**解决：** 改用电脑的局域网 IP (`192.168.31.191`)，手机和电脑连同一个 WiFi。
+
+**教训：** 开发阶段维护两个 base URL 切换：`localhost`（模拟器）和 `192.168.x.x`（真机）。上线后全部换成正式域名。
+
+---
+
 ## 待记录
 
 _随着开发推进，在此记录：_
-- 小程序开发踩坑（wx.login / openid / 订阅消息 / 审核）
-- uni-app 兼容性问题
-- 并发测试调优经验
+- 订阅消息推送调试
+- 小程序审核经验
+- 部署上线流程
