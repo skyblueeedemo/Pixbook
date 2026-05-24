@@ -14,9 +14,9 @@
     "typecheck": "pnpm -r typecheck",
     "format": "prettier --write \"**/*.{ts,vue,css,md,json}\"",
     "format:check": "prettier --check \"**/*.{ts,vue,css,md,json}\"",
-    "db:migrate": "pnpm --filter @pixbook/server prisma migrate dev",
-    "db:seed": "pnpm --filter @pixbook/server prisma db seed",
-    "db:studio": "pnpm --filter @pixbook/server prisma studio",
+    "db:migrate": "pnpm --filter @pixbook/server db:migrate",
+    "db:seed": "pnpm --filter @pixbook/server db:seed",
+    "db:studio": "pnpm --filter @pixbook/server db:studio",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down"
   },
