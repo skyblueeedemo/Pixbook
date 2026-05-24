@@ -48,23 +48,25 @@ function onSuccess(orderId: string) {
 .page {
   min-height: 100vh;
   background: #f5f5f5;
+  padding-bottom: 40rpx;
 }
 .header {
-  padding: 16px;
+  padding: 30rpx;
   text-align: center;
   background: #fff;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1rpx solid #eee;
 }
 .title {
-  font-size: 18px;
+  font-size: 36rpx;
   font-weight: 600;
 }
 .selected-info {
-  margin: 12px 16px;
-  padding: 10px 14px;
+  margin: 24rpx;
+  padding: 20rpx 28rpx;
   background: #e8f5e9;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 12rpx;
+  font-size: 28rpx;
   color: #2e7d32;
+  line-height: 1.5;
 }
 </style>

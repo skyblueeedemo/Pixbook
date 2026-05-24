@@ -5,7 +5,7 @@
  */
 type RequestOptions = UniApp.RequestOptions;
 
-const BASE_URL = 'https://api.pixbook.local/api'; // Replace with actual domain after ICP filing
+const BASE_URL = 'http://localhost:3000/api'; // 本地开发用 localhost
 
 function request<T = unknown>(options: RequestOptions): Promise<T> {
   const sessionKey = uni.getStorageSync('session_key');

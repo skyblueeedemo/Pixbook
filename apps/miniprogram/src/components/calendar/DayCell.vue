@@ -59,23 +59,27 @@ function onTap() {
 
 <style scoped>
 .day-cell {
-  width: calc(100% / 7);
-  aspect-ratio: 1;
+  width: 14.28%;
+  height: 110rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   border-radius: 6px;
   box-sizing: border-box;
-  margin: 2px 0;
+  margin: 2rpx 0;
+  overflow: hidden;
 }
 .day-num {
-  font-size: 14px;
+  font-size: 28rpx;
   font-weight: 500;
+  line-height: 1.2;
 }
 .day-label {
-  font-size: 10px;
-  margin-top: 2px;
+  font-size: 20rpx;
+  margin-top: 4rpx;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 /* ── Status colours (PRD §3.2) ───────────────────── */

@@ -171,62 +171,62 @@ async function handleSubmit() {
 
 <style scoped>
 .form-wrap {
-  margin: 12px 16px;
+  margin: 24rpx;
   background: #fff;
-  border-radius: 12px;
-  padding: 20px;
+  border-radius: 16rpx;
+  padding: 36rpx;
 }
 .section-title {
-  font-size: 16px;
+  font-size: 32rpx;
   font-weight: 600;
-  margin-bottom: 16px;
+  margin-bottom: 30rpx;
 }
 .field {
-  margin-bottom: 16px;
+  margin-bottom: 28rpx;
 }
 .field-label {
   display: block;
-  font-size: 13px;
+  font-size: 26rpx;
   font-weight: 500;
   color: #555;
-  margin-bottom: 6px;
+  margin-bottom: 10rpx;
 }
 .field-input {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-size: 14px;
+  border: 1rpx solid #ddd;
+  border-radius: 12rpx;
+  padding: 20rpx 28rpx;
+  font-size: 28rpx;
   width: 100%;
   box-sizing: border-box;
 }
 .field-textarea {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 10px 14px;
-  font-size: 14px;
+  border: 1rpx solid #ddd;
+  border-radius: 12rpx;
+  padding: 20rpx 28rpx;
+  font-size: 28rpx;
   width: 100%;
   box-sizing: border-box;
-  min-height: 80px;
+  min-height: 150rpx;
 }
 .field-hint {
   display: block;
-  font-size: 11px;
+  font-size: 22rpx;
   color: #aaa;
-  margin-top: 4px;
+  margin-top: 8rpx;
 }
 .field-error {
   display: block;
-  font-size: 12px;
+  font-size: 24rpx;
   color: #e74c3c;
-  margin-top: 4px;
+  margin-top: 8rpx;
 }
 .error-banner {
   background: #fff3e0;
   color: #e65100;
-  font-size: 13px;
-  padding: 10px 14px;
-  border-radius: 8px;
-  margin-bottom: 12px;
+  font-size: 26rpx;
+  padding: 20rpx 28rpx;
+  border-radius: 12rpx;
+  margin-bottom: 24rpx;
   text-align: center;
 }
 .submit-btn {
@@ -234,9 +234,9 @@ async function handleSubmit() {
   background: #409eff;
   color: #fff;
   border: none;
-  border-radius: 8px;
-  padding: 14px;
-  font-size: 16px;
+  border-radius: 12rpx;
+  padding: 28rpx;
+  font-size: 32rpx;
   font-weight: 600;
 }
 .submit-btn[disabled] {
@@ -245,8 +245,8 @@ async function handleSubmit() {
 .disclaimer {
   display: block;
   text-align: center;
-  font-size: 11px;
+  font-size: 22rpx;
   color: #bbb;
-  margin-top: 10px;
+  margin-top: 20rpx;
 }
 </style>

@@ -23,21 +23,24 @@
 .legend {
   display: flex;
   justify-content: space-around;
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid #eee;
-  font-size: 11px;
+  margin-top: 20rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #eee;
+  font-size: 22rpx;
   color: #888;
 }
 .item {
   display: flex;
   align-items: center;
-  gap: 4px;
+}
+.item text {
+  margin-left: 8rpx;
 }
 .dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 4rpx;
+  flex-shrink: 0;
 }
 .dot.dc-avail { background: #EAF3DE; }
 .dot.dc-hot { background: #FAEEDA; }

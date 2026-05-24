@@ -67,34 +67,34 @@ function onSelect(day: DayStatus) {
 <style scoped>
 .calendar-wrap {
   background: #fff;
-  margin: 12px 16px;
-  border-radius: 12px;
-  padding: 16px;
+  margin: 24rpx;
+  border-radius: 16rpx;
+  padding: 30rpx;
 }
 .month-header {
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 16rpx;
 }
 .month-title {
-  font-size: 17px;
+  font-size: 34rpx;
   font-weight: 600;
 }
 .today-marker {
   text-align: center;
-  font-size: 12px;
+  font-size: 24rpx;
   color: #888;
-  margin-bottom: 12px;
+  margin-bottom: 20rpx;
 }
 .weekdays {
   display: flex;
-  margin-bottom: 6px;
+  margin-bottom: 12rpx;
 }
 .wd {
-  flex: 1;
+  width: 14.28%;
   text-align: center;
-  font-size: 12px;
+  font-size: 24rpx;
   color: #999;
-  padding: 4px 0;
+  padding: 8rpx 0;
 }
 .day-grid {
   display: flex;
@@ -102,7 +102,8 @@ function onSelect(day: DayStatus) {
 }
 .loading {
   text-align: center;
-  padding: 24px;
+  padding: 48rpx;
   color: #888;
+  font-size: 28rpx;
 }
 </style>
