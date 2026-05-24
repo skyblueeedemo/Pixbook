@@ -37,8 +37,8 @@
       </div>
 
       <!-- Edit dialog -->
-      <el-dialog v-model="dialog" :title="'编辑 ' + editDate" width="360px">
-        <el-form label-width="80px">
+      <el-dialog v-model="dialog" :title="'编辑 ' + editDate" width="480px">
+        <el-form label-width="80px" style="margin-bottom:16px">
           <el-form-item label="接单上限">
             <el-input-number v-model="editMaxSlots" :min="0" :max="99" />
             <span style="margin-left:8px;color:#999;font-size:12px">0 = 不接单</span>
@@ -47,6 +47,29 @@
             <el-switch v-model="editRestDay" />
           </el-form-item>
         </el-form>
+
+        <!-- Orders for this day -->
+        <el-divider />
+        <p style="font-weight:600;margin-bottom:8px">
+          当日预约（{{ editOrders.length }} 单）
+        </p>
+        <el-table v-if="editOrders.length" :data="editOrders" size="small" max-height="240">
+          <el-table-column prop="customerName" label="客户" width="80" />
+          <el-table-column prop="orderNo" label="订单号" width="150" />
+          <el-table-column label="状态" width="80">
+            <template #default="{ row }">
+              <el-tag :type="statusTag(row.status)" size="small">{{ statusLabel(row.status) }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="photoCount" label="张数" width="50" align="center" />
+          <el-table-column label="操作" width="70">
+            <template #default="{ row }">
+              <el-button size="small" @click="goToOrder(row.orderNo)">详情</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <p v-else style="color:#999;font-size:13px">暂无预约</p>
+
         <template #footer>
           <el-button @click="dialog = false">取消</el-button>
           <el-button type="primary" @click="handleSave" :loading="saving">保存</el-button>
@@ -81,7 +104,13 @@ const dialog = ref(false);
 const editDate = ref('');
 const editMaxSlots = ref(5);
 const editRestDay = ref(false);
+const editOrders = ref<{ orderNo: string; customerName: string; status: number; photoCount: number }[]>([]);
 const saving = ref(false);
+
+const statusMap: Record<number, string> = { 0: 'warning', 1: 'primary', 2: '', 3: 'success', 4: 'info' };
+const labelMap: Record<number, string> = { 0: '待确认', 1: '修图中', 2: '待交付', 3: '已完成', 4: '已取消' };
+function statusTag(s: number) { return statusMap[s] ?? 'info'; }
+function statusLabel(s: number) { return labelMap[s] ?? ''; }
 
 const monthTitle = computed(() => currentMonth.value.format('YYYY年M月'));
 const today = dayjs().format('YYYY-MM-DD');
@@ -114,7 +143,12 @@ function openDialog(d: AdminDay) {
   editDate.value = d.date;
   editMaxSlots.value = d.maxSlots;
   editRestDay.value = d.isRestDay;
+  editOrders.value = d.orders;
   dialog.value = true;
+}
+
+function goToOrder(orderNo: string) {
+  window.open(`/orders?keyword=${orderNo}`, '_blank');
 }
 
 async function handleSave() {
