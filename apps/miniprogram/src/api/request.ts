@@ -5,7 +5,8 @@
  */
 type RequestOptions = UniApp.RequestOptions;
 
-const BASE_URL = 'http://localhost:3000/api'; // 本地开发用 localhost
+// 真机预览需用电脑局域网 IP（手机和电脑连同一 WiFi）
+const BASE_URL = 'http://192.168.31.191:3000/api';
 
 function request<T = unknown>(options: RequestOptions): Promise<T> {
   const sessionKey = uni.getStorageSync('session_key');
