@@ -137,15 +137,19 @@ export class OrderService {
     );
   }
 
-  /** Query order by orderId+phone or name+phone (dual verification) */
-  async query(orderId?: string, phone?: string, customerName?: string) {
-    const where: any = { customerPhone: phone };
+  /** Query order by name + (phone | orderId) */
+  async query(customerName: string, phone?: string, orderId?: string) {
+    if (!phone && !orderId) {
+      throw new HttpException({ code: 1004, message: '请提供手机号或订单号' }, 400);
+    }
+
+    const where: any = { customerName };
 
     if (orderId) {
       where.orderNo = orderId;
     }
-    if (customerName) {
-      where.customerName = customerName;
+    if (phone) {
+      where.customerPhone = phone;
     }
 
     const order = await this.prisma.order.findFirst({

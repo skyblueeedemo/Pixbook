@@ -10,23 +10,31 @@ interface OrderInfo {
   createdAt: string;
 }
 
+interface QueryParams {
+  name: string;
+  phone?: string;
+  orderId?: string;
+}
+
 export function useOrderQuery() {
   const order = ref<OrderInfo | null>(null);
   const loading = ref(false);
   const error = ref<string | null>(null);
 
-  async function query(customerName: string, phone: string) {
+  async function query(params: QueryParams) {
     loading.value = true;
     error.value = null;
+    order.value = null;
     try {
-      const name = encodeURIComponent(customerName);
-      const res = await api.get<{ code: number; data: OrderInfo }>(
-        `/order/query?customerName=${name}&customerPhone=${phone}`,
-      );
+      const parts = [`customerName=${encodeURIComponent(params.name)}`];
+      if (params.phone) parts.push(`customerPhone=${params.phone}`);
+      if (params.orderId) parts.push(`orderId=${encodeURIComponent(params.orderId)}`);
+      const qs = parts.join('&');
+
+      const res = await api.get<{ code: number; data: OrderInfo }>(`/order/query?${qs}`);
       order.value = res.data;
     } catch {
-      error.value = '未找到订单，请检查姓名和手机号';
-      order.value = null;
+      error.value = '未找到订单，请检查填写信息';
     } finally {
       loading.value = false;
     }

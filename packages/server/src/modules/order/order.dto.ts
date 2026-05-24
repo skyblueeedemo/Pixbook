@@ -43,18 +43,18 @@ export class CreateOrderDto {
 }
 
 export class QueryOrderDto {
+  @IsString()
+  @Length(2, 10)
+  customerName: string;
+
+  @IsOptional()
+  @IsString()
+  @Matches(/^1\d{10}$/)
+  customerPhone?: string;
+
   @IsOptional()
   @IsString()
   orderId?: string;
-
-  @IsOptional()
-  @IsString()
-  @Length(2, 10)
-  customerName?: string;
-
-  @IsString()
-  @Matches(/^1\d{10}$/)
-  customerPhone: string;
 }
 
 export class UpdateOrderStatusDto {

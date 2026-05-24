@@ -4,8 +4,9 @@
       <text class="qtl">订单查询</text>
 
       <view class="qfm">
-        <view class="qib"><input v-model="nameInput" class="qip" placeholder="请输入预约姓名" maxlength="10" /></view>
-        <view class="qib"><input v-model="phoneInput" class="qip" type="number" maxlength="11" placeholder="请输入预约手机号" /></view>
+        <view class="qib"><input v-model="nameInput" class="qip" placeholder="请输入预约姓名（必填）" maxlength="10" /></view>
+        <view class="qib"><input v-model="phoneInput" class="qip" type="number" maxlength="11" placeholder="手机号（二选一）" /></view>
+        <view class="qib"><input v-model="orderIdInput" class="qip" placeholder="订单号（二选一）" /></view>
         <button class="qbt" :disabled="loading" @tap="handleQuery">
           {{ loading ? '查询中...' : '查询' }}
         </button>
@@ -29,6 +30,7 @@ import { useOrderQuery } from '@/composables/useOrderQuery';
 
 const nameInput = ref('');
 const phoneInput = ref('');
+const orderIdInput = ref('');
 const { order, loading, error, query } = useOrderQuery();
 
 const fmtDate = computed(() => {
@@ -37,11 +39,15 @@ const fmtDate = computed(() => {
 });
 
 function handleQuery() {
-  if (!nameInput.value || !phoneInput.value) {
-    error.value = '请填写姓名和手机号';
+  if (!nameInput.value) {
+    error.value = '请填写姓名';
     return;
   }
-  query(nameInput.value, phoneInput.value);
+  if (!phoneInput.value && !orderIdInput.value) {
+    error.value = '请填写手机号或订单号';
+    return;
+  }
+  query({ name: nameInput.value, phone: phoneInput.value || undefined, orderId: orderIdInput.value || undefined });
 }
 </script>
 

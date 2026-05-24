@@ -15,7 +15,7 @@ export class OrderController {
   /** GET /api/order/query?orderId=...|customerName=...&customerPhone=... */
   @Get('query')
   async query(@Query() query: QueryOrderDto) {
-    return this.orderService.query(query.orderId, query.customerPhone, query.customerName);
+    return this.orderService.query(query.customerName, query.customerPhone, query.orderId);
   }
 
   /** PATCH /api/admin/order/:orderId/status */
