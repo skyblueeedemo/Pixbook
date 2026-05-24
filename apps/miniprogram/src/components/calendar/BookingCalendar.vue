@@ -8,6 +8,7 @@
     </view>
     <view v-if="loading" class="cal-loading">加载中...</view>
     <view v-else class="cal-grid">
+      <view v-for="n in placeholderCount" :key="'ph'+n" class="day-cell" />
       <DayCell
         v-for="day in days" :key="day.date" :day="day"
         :is-selected="selectedDate?.date === day.date"
@@ -33,6 +34,10 @@ const todayStr = dayjs().format('YYYY-MM-DD');
 const yearMonth = computed(() => {
   if (props.days.length === 0) return '';
   return dayjs(props.days[0].date).format('YYYY年M月');
+});
+const placeholderCount = computed(() => {
+  if (props.days.length === 0) return 0;
+  return dayjs(props.days[0].date).day(); // 0=Sun, so N empties before first day
 });
 
 function onSelect(day: DayStatus) {
@@ -76,6 +81,13 @@ function onSelect(day: DayStatus) {
 .cal-grid {
   text-align: left;
   font-size: 0;
+}
+.cal-grid .day-cell {
+  display: inline-block;
+  width: 13.5%;
+  height: 50px;
+  margin: 1px 0.35%;
+  vertical-align: top;
 }
 .cal-loading {
   text-align: center;
