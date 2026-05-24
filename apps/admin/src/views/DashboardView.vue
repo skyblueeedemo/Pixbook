@@ -121,7 +121,7 @@ async function loadAll() {
     // Fetch all stats in parallel (individual error handling)
     const settled = await Promise.allSettled([
       api.get('/admin/orders', { params: { dateFrom: today, dateTo: today, page: 1, pageSize: 1 } }),
-      api.get('/admin/orders', { params: { dateFrom: `${thisMonth}-01`, dateTo: today, page: 1, pageSize: 1 } }),
+      api.get('/admin/orders', { params: { dateFrom: `${thisMonth}-01`, dateTo: `${thisMonth}-31`, page: 1, pageSize: 1 } }),
       api.get('/admin/orders', { params: { status: 0, page: 1, pageSize: 1 } }),
       api.get('/admin/orders', { params: { page: 1, pageSize: 1 } }),
       api.get('/admin/orders', { params: { status: 0, page: 1, pageSize: 1 } }),
@@ -162,8 +162,8 @@ async function fetchOrders() {
       return;
     }
     if (activeFilter.value === 1) {
-      // This month
-      const res = await api.get('/admin/orders', { params: { dateFrom: `${thisMonth}-01`, dateTo: today, page: 1, pageSize: 20 } });
+      // This month (full month)
+      const res = await api.get('/admin/orders', { params: { dateFrom: `${thisMonth}-01`, dateTo: `${thisMonth}-31`, page: 1, pageSize: 20 } });
       orders.value = res.data.data.list;
       filteredTotal.value = res.data.data.total;
       return;
