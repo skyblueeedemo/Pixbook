@@ -59,9 +59,9 @@ async function loadConfig() {
   try {
     const res = await api.get('/admin/config');
     const data = res.data.data;
-    form.default_max_slots = Number(data.default_max_slots ?? 5);
-    form.booking_days = Number(data.booking_days ?? 30);
-    restDays.value = (data.rest_days_of_week ?? '').split(',').filter(Boolean);
+    form.default_max_slots = Number(data.defaultMaxSlots ?? 5);
+    form.booking_days = Number(data.bookingDays ?? 30);
+    restDays.value = (data.restDaysOfWeek ?? []).map(String);
   } catch {
     ElMessage.error('加载配置失败');
   } finally {

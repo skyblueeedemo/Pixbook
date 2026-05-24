@@ -4,9 +4,10 @@ import { RedisService } from '../../common/redis/redis.service';
 
 export interface AppConfig {
   defaultMaxSlots: number;
-  bookingRangeDays: number;
+  bookingDays: number;
   restDaysOfWeek: number[];
   extraRestDates: string[];
+  extraWorkDates: string[];
 }
 
 @Injectable()
@@ -23,9 +24,10 @@ export class ConfigService {
 
     return {
       defaultMaxSlots: Number(map.default_max_slots ?? 5),
-      bookingRangeDays: Number(map.booking_range_days ?? 30),
+      bookingDays: Number(map.booking_days ?? 30),
       restDaysOfWeek: JSON.parse(map.rest_days_of_week ?? '[0]'),
       extraRestDates: JSON.parse(map.extra_rest_dates ?? '[]'),
+      extraWorkDates: JSON.parse(map.extra_work_dates ?? '[]'),
     };
   }
 
@@ -37,11 +39,11 @@ export class ConfigService {
         update: { value: String(partial.defaultMaxSlots) },
       });
     }
-    if (partial.bookingRangeDays !== undefined) {
+    if (partial.bookingDays !== undefined) {
       await this.prisma.config.upsert({
-        where: { key: 'booking_range_days' },
-        create: { key: 'booking_range_days', value: String(partial.bookingRangeDays) },
-        update: { value: String(partial.bookingRangeDays) },
+        where: { key: 'booking_days' },
+        create: { key: 'booking_days', value: String(partial.bookingDays) },
+        update: { value: String(partial.bookingDays) },
       });
     }
     if (partial.restDaysOfWeek !== undefined) {
@@ -56,6 +58,13 @@ export class ConfigService {
         where: { key: 'extra_rest_dates' },
         create: { key: 'extra_rest_dates', value: JSON.stringify(partial.extraRestDates) },
         update: { value: JSON.stringify(partial.extraRestDates) },
+      });
+    }
+    if (partial.extraWorkDates !== undefined) {
+      await this.prisma.config.upsert({
+        where: { key: 'extra_work_dates' },
+        create: { key: 'extra_work_dates', value: JSON.stringify(partial.extraWorkDates) },
+        update: { value: JSON.stringify(partial.extraWorkDates) },
       });
     }
 
