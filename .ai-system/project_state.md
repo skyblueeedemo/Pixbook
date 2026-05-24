@@ -27,16 +27,16 @@
 
 ## 当前活跃任务
 
-- [ ] 初始化 pnpm monorepo 工程
-- [ ] 创建 `apps/miniprogram`（uni-app）、`apps/admin`（Vue 3 Web）、`packages/server`（NestJS）
-- [ ] 微信公众平台注册小程序，获取 AppID / AppSecret
-- [ ] 编写 Prisma schema（schedules / orders / config / users 四张表）
-- [ ] 配置 Docker Compose（MySQL 8 + Redis 7）
-- [ ] 配置 ESLint + Prettier + TypeScript
+- [x] 初始化 pnpm monorepo 工程 (`pnpm-workspace.yaml` + root `package.json`)
+- [x] 创建 `apps/miniprogram`（uni-app）、`apps/admin`（Vue 3 Web）、`packages/server`（NestJS）
+- [ ] 微信公众平台注册小程序，获取 AppID / AppSecret（需开发者自行注册）
+- [x] 编写 Prisma schema（schedules / orders / config / users 四张表 + seed）
+- [x] 配置 Docker Compose（MySQL 8 + Redis 7）
+- [x] 配置 Prettier + TypeScript（ESLint 待 `pnpm install` 后配置）
 
 ## 阻断项
 
-_暂无_
+- 微信 AppID / AppSecret 尚未获取：`apps/miniprogram/src/manifest.json` 中 `wxREPLACE_ME` 和 `.env.example` 中 `WX_APP_ID` / `WX_APP_SECRET` 需替换为真实值
 
 ## 近期决策
 
