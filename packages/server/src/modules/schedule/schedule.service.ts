@@ -54,11 +54,21 @@ export class ScheduleService {
     const scheduleMap = new Map(schedules.map((s) => [dayjs(s.date).format('YYYY-MM-DD'), s]));
     const nonCancelStatuses = [0, 1, 2, 3, 4]; // all except '已取消' (5)
 
+    // ── Booking window constraint ──────────────────────
+    const bookingDays = Number(configs.booking_days || 30);
+    const maxDate = dayjs().add(bookingDays, 'day').format('YYYY-MM-DD');
+
     const result: DayStatus[] = [];
 
     for (let i = 0; i < days; i++) {
       const date = start.add(i, 'day');
       const dateStr = date.format('YYYY-MM-DD');
+
+      // ── Outside booking window ──────────────────────
+      if (dateStr > maxDate) {
+        result.push({ date: dateStr, status: 'unavailable', availableSlots: 0, maxSlots: 0, version: 0 });
+        continue;
+      }
 
       // ── Rest day check ──────────────────────────────
       const restDays: number[] = JSON.parse(configs.rest_days_of_week || '[0]');
