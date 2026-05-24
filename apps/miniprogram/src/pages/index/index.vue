@@ -19,15 +19,23 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
+import { onShow } from '@dcloudio/uni-app';
 import { useCalendar } from '@/composables/useCalendar';
 import BookingCalendar from '@/components/calendar/BookingCalendar.vue';
 import BookingForm from '@/components/booking/BookingForm.vue';
 
-const { days, loading, selectedDate, currentMonth, fetchCalendar, selectDate, prevMonth, nextMonth } = useCalendar();
+const { days, loading, selectedDate, currentMonth, fetchCalendar, selectDate, prevMonth, nextMonth, refresh } = useCalendar();
 
 const monthTitle = computed(() => currentMonth.value.format('YYYY年M月'));
 
+let firstShow = true;
 onMounted(() => fetchCalendar());
+
+// Refresh calendar when returning from success page
+onShow(() => {
+  if (firstShow) { firstShow = false; return; }
+  refresh();
+});
 
 function onSuccess(result: { orderId: string; photoCount: number }) {
   const d = selectedDate.value;
