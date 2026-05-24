@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import dayjs from 'dayjs';
+import * as dayjs from 'dayjs';
 import { RedisService } from '../../common/redis/redis.service';
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -58,8 +58,8 @@ export class ScheduleService {
       const dateStr = date.format('YYYY-MM-DD');
 
       // ── Rest day check ──────────────────────────────
-      const restDays: number[] = JSON.parse(configs.restDaysOfWeek || '[0]');
-      const extraRest: string[] = JSON.parse(configs.extraRestDates || '[]');
+      const restDays: number[] = JSON.parse(configs.rest_days_of_week || '[0]');
+      const extraRest: string[] = JSON.parse(configs.extra_rest_dates || '[]');
       const isRest = restDays.includes(date.day()) || extraRest.includes(dateStr);
 
       if (isRest) {
@@ -69,7 +69,7 @@ export class ScheduleService {
 
       // ── Calculate availability ──────────────────────
       const schedule = scheduleMap.get(dateStr);
-      const maxSlots = schedule?.maxSlots ?? Number(configs.defaultMaxSlots || 5);
+      const maxSlots = schedule?.maxSlots ?? Number(configs.default_max_slots || 5);
 
       const bookedCount = schedule
         ? await this.prisma.order.count({
