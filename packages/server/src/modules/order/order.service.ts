@@ -1,7 +1,7 @@
 import { Injectable, HttpException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../../common/redis/redis.service';
-import { CreateOrderDto } from './order.dto';
+import { CreateOrderDto, AdminOrderQueryDto } from './order.dto';
 
 /**
  * Order status enum — matches PRD §7.3 state flow.
@@ -198,6 +198,61 @@ export class OrderService {
     }
 
     return { code: 0, message: '状态更新成功', data: { status: newStatus, statusLabel: OrderStatusLabel[newStatus] } };
+  }
+
+  /** Admin: list orders with filtering + pagination */
+  async listOrders(query: AdminOrderQueryDto) {
+    const where: any = {};
+
+    if (query.status !== undefined && query.status !== null) {
+      where.status = Number(query.status);
+    }
+    if (query.dateFrom || query.dateTo) {
+      where.scheduleDate = {};
+      if (query.dateFrom) where.scheduleDate.gte = new Date(query.dateFrom);
+      if (query.dateTo) where.scheduleDate.lte = new Date(query.dateTo);
+    }
+    if (query.keyword) {
+      where.OR = [
+        { customerName: { contains: query.keyword } },
+        { customerPhone: { contains: query.keyword } },
+        { orderNo: { contains: query.keyword } },
+      ];
+    }
+
+    const page = query.page ?? 1;
+    const pageSize = query.pageSize ?? 20;
+    const skip = (page - 1) * pageSize;
+
+    const [orders, total] = await Promise.all([
+      this.prisma.order.findMany({
+        where,
+        skip,
+        take: pageSize,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.order.count({ where }),
+    ]);
+
+    return {
+      code: 0,
+      data: {
+        list: orders.map((o) => ({
+          orderId: o.orderNo,
+          scheduleDate: o.scheduleDate,
+          customerName: o.customerName,
+          customerPhone: o.customerPhone,
+          photoCount: o.photoCount,
+          requirements: o.requirements,
+          status: o.status,
+          statusLabel: OrderStatusLabel[o.status],
+          createdAt: o.createdAt,
+        })),
+        total,
+        page,
+        pageSize,
+      },
+    };
   }
 
   // ─── Helpers ─────────────────────────────────────────

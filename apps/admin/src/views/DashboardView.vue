@@ -1,49 +1,81 @@
 <template>
-  <el-container>
-    <el-header class="header">
-      <span>📊 修图约 · 管理后台</span>
-      <el-button @click="logout">退出登录</el-button>
-    </el-header>
-    <el-container>
-      <el-aside width="200px" class="aside">
-        <el-menu :router="true" :default-active="route.path">
-          <el-menu-item index="/">总览</el-menu-item>
-          <el-menu-item index="/schedule">排期管理</el-menu-item>
-          <el-menu-item index="/orders">订单管理</el-menu-item>
-          <el-menu-item index="/config">系统配置</el-menu-item>
-        </el-menu>
-      </el-aside>
-      <el-main>
-        <h3>排期总览</h3>
-        <p>欢迎使用修图约管理后台。选择一个菜单项开始管理。</p>
-      </el-main>
-    </el-container>
-  </el-container>
+  <AdminLayout>
+    <div class="dt">
+      <h3>数据总览</h3>
+      <el-row :gutter="16">
+        <el-col :span="6" v-for="c in cards" :key="c.label">
+          <el-card shadow="hover">
+            <div class="dcv">{{ c.value }}</div>
+            <div class="dcl">{{ c.label }}</div>
+          </el-card>
+        </el-col>
+      </el-row>
+
+      <el-card style="margin-top:20px" v-loading="recentLoading">
+        <h4 style="margin-bottom:12px">最近订单</h4>
+        <el-table :data="recentOrders" stripe size="small">
+          <el-table-column prop="orderId" label="订单号" width="150" />
+          <el-table-column prop="customerName" label="客户" width="80" />
+          <el-table-column label="预约日期" width="110">
+            <template #default="{ row }">{{ fmt(row.scheduleDate) }}</template>
+          </el-table-column>
+          <el-table-column label="状态" width="90">
+            <template #default="{ row }">
+              <el-tag size="small" :type="st(row.status)">{{ row.statusLabel }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="requirements" label="修图需求" min-width="160" show-overflow-tooltip />
+        </el-table>
+      </el-card>
+    </div>
+  </AdminLayout>
 </template>
 
 <script setup lang="ts">
-import { useRouter, useRoute } from 'vue-router';
+import { ref, reactive, onMounted } from 'vue';
+import AdminLayout from '@/components/AdminLayout.vue';
+import api from '@/api';
 
-const router = useRouter();
-const route = useRoute();
-
-function logout() {
-  localStorage.removeItem('token');
-  router.push('/login');
+interface Order {
+  orderId: string;
+  scheduleDate: string;
+  customerName: string;
+  requirements: string;
+  status: number;
+  statusLabel: string;
 }
+
+const cards = reactive([
+  { label: '今日预约', value: '-' },
+  { label: '本月订单', value: '-' },
+  { label: '待处理', value: '-' },
+  { label: '总订单', value: '-' },
+]);
+
+const recentOrders = ref<Order[]>([]);
+const recentLoading = ref(false);
+
+const stags: Record<number, string> = { 0: 'warning', 1: 'primary', 2: '', 3: 'success', 4: 'info' };
+function st(s: number) { return stags[s] ?? 'info'; }
+function fmt(d: string) { return (d ?? '').slice(0, 10); }
+
+async function loadStats() {
+  try {
+    const res = await api.get('/admin/orders', { params: { page: 1, pageSize: 5 } });
+    recentOrders.value = res.data.data.list;
+    cards[3].value = String(res.data.data.total);
+
+    // Count pending
+    const pending = await api.get('/admin/orders', { params: { status: 0, page: 1, pageSize: 1 } });
+    cards[2].value = String(pending.data.data.total);
+  } catch { /* silent */ }
+}
+
+onMounted(() => loadStats());
 </script>
 
-<style scoped>
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #409eff;
-  color: #fff;
-  padding: 0 20px;
-}
-.aside {
-  background: #fff;
-  min-height: calc(100vh - 60px);
-}
+<style>
+.dt h3 { margin-bottom: 16px; }
+.dcv { font-size: 28px; font-weight: 700; color: #409eff; }
+.dcl { font-size: 13px; color: #999; margin-top: 4px; }
 </style>

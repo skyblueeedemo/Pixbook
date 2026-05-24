@@ -63,3 +63,34 @@ export class UpdateOrderStatusDto {
   @Max(4)
   status: number;
 }
+
+export class AdminOrderQueryDto {
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(4)
+  status?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  page?: number = 1;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  pageSize?: number = 20;
+
+  @IsOptional()
+  @IsString()
+  dateFrom?: string;
+
+  @IsOptional()
+  @IsString()
+  dateTo?: string;
+
+  @IsOptional()
+  @IsString()
+  keyword?: string;
+}
