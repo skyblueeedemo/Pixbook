@@ -6,6 +6,30 @@
 
 ---
 
+## 截图
+
+> 截屏后放入 `docs/screenshots/`，替换下方占位图路径。建议尺寸：小程序 390×844，管理后台 1440×900。
+
+### 📱 小程序
+
+| 页面 | 截图 |
+|------|:--:|
+| 首页日历 | ![日历](./docs/screenshots/mp-calendar.png) |
+| 预约表单 | ![表单](./docs/screenshots/mp-form.png) |
+| 提交成功 | ![成功](./docs/screenshots/mp-success.png) |
+| 订单查询 | ![查询](./docs/screenshots/mp-query.png) |
+
+### 🖥️ 管理后台
+
+| 页面 | 截图 |
+|------|:--:|
+| 总览仪表盘 | ![总览](./docs/screenshots/admin-dashboard.png) |
+| 订单管理 | ![订单](./docs/screenshots/admin-orders.png) |
+| 排期管理 | ![排期](./docs/screenshots/admin-schedule.png) |
+| 系统配置 | ![配置](./docs/screenshots/admin-config.png) |
+
+---
+
 ## 功能
 
 ### 📱 小程序（用户端）
