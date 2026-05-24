@@ -76,7 +76,16 @@ export function useCalendar() {
   }
 
   async function refresh() {
-    return fetchCalendar(true);
+    await fetchCalendar(true);
+    // Re-sync selected date with fresh data
+    if (selectedDate.value) {
+      const fresh = days.value.find((d) => d.date === selectedDate.value!.date);
+      if (fresh && fresh.status !== 'full' && fresh.status !== 'unavailable') {
+        selectedDate.value = fresh;
+      } else {
+        selectedDate.value = null; // date became full — deselect
+      }
+    }
   }
 
   function selectDate(day: DayStatus) {
