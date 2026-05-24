@@ -114,6 +114,99 @@ export class ScheduleService {
     if (keys.length) await this.redis.client.del(...keys);
   }
 
+  /** Admin: get full month calendar with booking details */
+  async getAdminCalendar(month?: string): Promise<any[]> {
+    const m = month ? dayjs(month) : dayjs();
+    const start = m.startOf('month');
+    const daysInMonth = m.daysInMonth();
+
+    const [schedules, orders, configs] = await Promise.all([
+      this.prisma.schedule.findMany({
+        where: {
+          date: {
+            gte: new Date(start.format('YYYY-MM-DD') + 'T00:00:00.000Z'),
+            lte: new Date(start.add(daysInMonth - 1, 'day').format('YYYY-MM-DD') + 'T00:00:00.000Z'),
+          },
+        },
+      }),
+      this.prisma.order.findMany({
+        where: {
+          scheduleDate: {
+            gte: new Date(start.format('YYYY-MM-DD') + 'T00:00:00.000Z'),
+            lte: new Date(start.add(daysInMonth - 1, 'day').format('YYYY-MM-DD') + 'T00:00:00.000Z'),
+          },
+          status: { not: 4 },
+        },
+        select: { scheduleDate: true, customerName: true, status: true, photoCount: true, orderNo: true },
+      }),
+      this.loadConfigs(),
+    ]);
+
+    const scheduleMap = new Map(schedules.map((s) => [dayjs(s.date).format('YYYY-MM-DD'), s]));
+    const orderMap = new Map<string, any[]>();
+    orders.forEach((o) => {
+      const d = dayjs(o.scheduleDate).format('YYYY-MM-DD');
+      if (!orderMap.has(d)) orderMap.set(d, []);
+      orderMap.get(d)!.push(o);
+    });
+
+    const restDays: number[] = JSON.parse(configs.rest_days_of_week || '[0]');
+    const extraRest: string[] = JSON.parse(configs.extra_rest_dates || '[]');
+
+    const result: any[] = [];
+    for (let i = 0; i < daysInMonth; i++) {
+      const d = start.add(i, 'day');
+      const dateStr = d.format('YYYY-MM-DD');
+      const isRest = restDays.includes(d.day()) || extraRest.includes(dateStr);
+      const schedule = scheduleMap.get(dateStr);
+      const dayOrders = orderMap.get(dateStr) || [];
+
+      result.push({
+        date: dateStr,
+        weekday: d.day(),
+        isRestDay: isRest,
+        maxSlots: schedule?.maxSlots ?? Number(configs.default_max_slots || 5),
+        bookedSlots: schedule?.bookedSlots ?? 0,
+        version: schedule?.version ?? 0,
+        orders: dayOrders.map((o) => ({ orderNo: o.orderNo, customerName: o.customerName, status: o.status, photoCount: o.photoCount })),
+      });
+    }
+
+    return result;
+  }
+
+  /** Admin: update a single date (max_slots override or rest day) */
+  async updateDate(dateStr: string, body: { maxSlots?: number; isRestDay?: boolean }): Promise<void> {
+    const date = new Date(dateStr + 'T00:00:00.000Z');
+
+    if (body.isRestDay !== undefined) {
+      // Toggle extra_rest_dates
+      const configs = await this.loadConfigs();
+      const extraRest: string[] = JSON.parse(configs.extra_rest_dates || '[]');
+      if (body.isRestDay && !extraRest.includes(dateStr)) {
+        extraRest.push(dateStr);
+      } else if (!body.isRestDay) {
+        const idx = extraRest.indexOf(dateStr);
+        if (idx >= 0) extraRest.splice(idx, 1);
+      }
+      await this.prisma.config.upsert({
+        where: { key: 'extra_rest_dates' },
+        create: { key: 'extra_rest_dates', value: JSON.stringify(extraRest) },
+        update: { value: JSON.stringify(extraRest) },
+      });
+    }
+
+    if (body.maxSlots !== undefined) {
+      await this.prisma.$executeRaw`
+        INSERT INTO schedules (date, max_slots, booked_slots, version, created_at, updated_at)
+        VALUES (${date}, ${body.maxSlots}, 0, 0, NOW(), NOW())
+        ON DUPLICATE KEY UPDATE max_slots = ${body.maxSlots}, updated_at = NOW()
+      `;
+    }
+
+    await this.invalidateCache();
+  }
+
   private async loadConfigs() {
     const rows = await this.prisma.config.findMany();
     const map: Record<string, string> = {};
