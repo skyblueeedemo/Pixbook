@@ -15,7 +15,7 @@
 
       <view v-if="order" class="qrs">
         <view class="qrw"><text class="qlb">订单号</text><text class="qvl">{{ order.orderId }}</text></view>
-        <view class="qrw"><text class="qlb">预约日期</text><text class="qvl">{{ order.scheduleDate }}</text></view>
+        <view class="qrw"><text class="qlb">预约日期</text><text class="qvl">{{ fmtDate }}</text></view>
         <view class="qrw"><text class="qlb">状态</text><text class="qvl qst">{{ order.statusLabel }}</text></view>
       </view>
     </view>
@@ -23,12 +23,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useOrderQuery } from '@/composables/useOrderQuery';
 
 const orderIdInput = ref('');
 const phoneInput = ref('');
 const { order, loading, error, query } = useOrderQuery();
+
+const fmtDate = computed(() => {
+  if (!order.value) return '';
+  return (order.value.scheduleDate || '').slice(0, 10);
+});
 
 function handleQuery() {
   if (!orderIdInput.value || !phoneInput.value) {
