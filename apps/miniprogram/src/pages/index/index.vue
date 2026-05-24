@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from '@dcloudio/uni-app';
+import { onMounted } from 'vue';
 import { useCalendar } from '@/composables/useCalendar';
 import BookingCalendar from '@/components/calendar/BookingCalendar.vue';
 import BookingForm from '@/components/booking/BookingForm.vue';
