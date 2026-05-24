@@ -63,7 +63,10 @@ export class ScheduleService {
       // ── Rest day check ──────────────────────────────
       const restDays: number[] = JSON.parse(configs.rest_days_of_week || '[0]');
       const extraRest: string[] = JSON.parse(configs.extra_rest_dates || '[]');
-      const isRest = restDays.includes(date.day()) || extraRest.includes(dateStr);
+      const extraWork: string[] = JSON.parse(configs.extra_work_dates || '[]');
+      const isRest = extraRest.includes(dateStr)
+        ? true
+        : restDays.includes(date.day()) && !extraWork.includes(dateStr);
 
       if (isRest) {
         result.push({ date: dateStr, status: 'unavailable', availableSlots: 0, maxSlots: 0, version: 0 });
@@ -152,12 +155,16 @@ export class ScheduleService {
 
     const restDays: number[] = JSON.parse(configs.rest_days_of_week || '[0]');
     const extraRest: string[] = JSON.parse(configs.extra_rest_dates || '[]');
+    const extraWork: string[] = JSON.parse(configs.extra_work_dates || '[]');
 
     const result: any[] = [];
     for (let i = 0; i < daysInMonth; i++) {
       const d = start.add(i, 'day');
       const dateStr = d.format('YYYY-MM-DD');
-      const isRest = restDays.includes(d.day()) || extraRest.includes(dateStr);
+      // Rest = forced rest OR (weekly rest AND not forced work)
+      const isRest = extraRest.includes(dateStr)
+        ? true
+        : restDays.includes(d.day()) && !extraWork.includes(dateStr);
       const schedule = scheduleMap.get(dateStr);
       const dayOrders = orderMap.get(dateStr) || [];
 
@@ -180,20 +187,42 @@ export class ScheduleService {
     const date = new Date(dateStr + 'T00:00:00.000Z');
 
     if (body.isRestDay !== undefined) {
-      // Toggle extra_rest_dates
       const configs = await this.loadConfigs();
       const extraRest: string[] = JSON.parse(configs.extra_rest_dates || '[]');
-      if (body.isRestDay && !extraRest.includes(dateStr)) {
-        extraRest.push(dateStr);
-      } else if (!body.isRestDay) {
-        const idx = extraRest.indexOf(dateStr);
-        if (idx >= 0) extraRest.splice(idx, 1);
+      const extraWork: string[] = JSON.parse(configs.extra_work_dates || '[]');
+      const restDays: number[] = JSON.parse(configs.rest_days_of_week || '[0]');
+      const weekday = dayjs(dateStr).day();
+
+      if (body.isRestDay) {
+        // User wants this day to be REST
+        // Remove from extra_work if present; add to extra_rest if NOT weekly rest
+        const wi = extraWork.indexOf(dateStr);
+        if (wi >= 0) extraWork.splice(wi, 1);
+        if (!restDays.includes(weekday) && !extraRest.includes(dateStr)) {
+          extraRest.push(dateStr);
+        }
+      } else {
+        // User wants this day to be WORK
+        // Remove from extra_rest if present; add to extra_work if IS weekly rest
+        const ri = extraRest.indexOf(dateStr);
+        if (ri >= 0) extraRest.splice(ri, 1);
+        if (restDays.includes(weekday) && !extraWork.includes(dateStr)) {
+          extraWork.push(dateStr);
+        }
       }
-      await this.prisma.config.upsert({
-        where: { key: 'extra_rest_dates' },
-        create: { key: 'extra_rest_dates', value: JSON.stringify(extraRest) },
-        update: { value: JSON.stringify(extraRest) },
-      });
+
+      await Promise.all([
+        this.prisma.config.upsert({
+          where: { key: 'extra_rest_dates' },
+          create: { key: 'extra_rest_dates', value: JSON.stringify(extraRest) },
+          update: { value: JSON.stringify(extraRest) },
+        }),
+        this.prisma.config.upsert({
+          where: { key: 'extra_work_dates' },
+          create: { key: 'extra_work_dates', value: JSON.stringify(extraWork) },
+          update: { value: JSON.stringify(extraWork) },
+        }),
+      ]);
     }
 
     if (body.maxSlots !== undefined) {
