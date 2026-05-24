@@ -15,16 +15,18 @@ export function useOrderQuery() {
   const loading = ref(false);
   const error = ref<string | null>(null);
 
-  async function query(orderId: string, phone: string) {
+  async function query(customerName: string, phone: string) {
     loading.value = true;
     error.value = null;
     try {
+      const name = encodeURIComponent(customerName);
       const res = await api.get<{ code: number; data: OrderInfo }>(
-        `/order/query?orderId=${orderId}&customerPhone=${phone}`,
+        `/order/query?customerName=${name}&customerPhone=${phone}`,
       );
       order.value = res.data;
     } catch {
-      error.value = '未找到订单，请检查订单号和手机号';
+      error.value = '未找到订单，请检查姓名和手机号';
+      order.value = null;
     } finally {
       loading.value = false;
     }

@@ -12,10 +12,10 @@ export class OrderController {
     return this.orderService.submit(dto);
   }
 
-  /** GET /api/order/query?orderId=...&customerPhone=... */
+  /** GET /api/order/query?orderId=...|customerName=...&customerPhone=... */
   @Get('query')
   async query(@Query() query: QueryOrderDto) {
-    return this.orderService.query(query.orderId, query.customerPhone);
+    return this.orderService.query(query.orderId, query.customerPhone, query.customerName);
   }
 
   /** PATCH /api/admin/order/:orderId/status */

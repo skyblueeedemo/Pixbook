@@ -4,7 +4,7 @@
       <text class="qtl">订单查询</text>
 
       <view class="qfm">
-        <view class="qib"><input v-model="orderIdInput" class="qip" placeholder="请输入订单号" /></view>
+        <view class="qib"><input v-model="nameInput" class="qip" placeholder="请输入预约姓名" maxlength="10" /></view>
         <view class="qib"><input v-model="phoneInput" class="qip" type="number" maxlength="11" placeholder="请输入预约手机号" /></view>
         <button class="qbt" :disabled="loading" @tap="handleQuery">
           {{ loading ? '查询中...' : '查询' }}
@@ -16,6 +16,7 @@
       <view v-if="order" class="qrs">
         <view class="qrw"><text class="qlb">订单号</text><text class="qvl">{{ order.orderId }}</text></view>
         <view class="qrw"><text class="qlb">预约日期</text><text class="qvl">{{ fmtDate }}</text></view>
+        <view class="qrw"><text class="qlb">修图张数</text><text class="qvl">{{ order.photoCount }} 张</text></view>
         <view class="qrw"><text class="qlb">状态</text><text class="qvl qst">{{ order.statusLabel }}</text></view>
       </view>
     </view>
@@ -26,7 +27,7 @@
 import { ref, computed } from 'vue';
 import { useOrderQuery } from '@/composables/useOrderQuery';
 
-const orderIdInput = ref('');
+const nameInput = ref('');
 const phoneInput = ref('');
 const { order, loading, error, query } = useOrderQuery();
 
@@ -36,11 +37,11 @@ const fmtDate = computed(() => {
 });
 
 function handleQuery() {
-  if (!orderIdInput.value || !phoneInput.value) {
-    error.value = '请填写订单号和手机号';
+  if (!nameInput.value || !phoneInput.value) {
+    error.value = '请填写姓名和手机号';
     return;
   }
-  query(orderIdInput.value, phoneInput.value);
+  query(nameInput.value, phoneInput.value);
 }
 </script>
 

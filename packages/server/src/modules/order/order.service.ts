@@ -137,14 +137,24 @@ export class OrderService {
     );
   }
 
-  /** Query order by orderId + phone (dual verification) */
-  async query(orderId: string, phone: string) {
+  /** Query order by orderId+phone or name+phone (dual verification) */
+  async query(orderId?: string, phone?: string, customerName?: string) {
+    const where: any = { customerPhone: phone };
+
+    if (orderId) {
+      where.orderNo = orderId;
+    }
+    if (customerName) {
+      where.customerName = customerName;
+    }
+
     const order = await this.prisma.order.findFirst({
-      where: { orderNo: orderId, customerPhone: phone },
+      where,
+      orderBy: { createdAt: 'desc' },
     });
 
     if (!order) {
-      throw new HttpException({ code: 1004, message: '订单不存在或手机号不匹配' }, 404);
+      throw new HttpException({ code: 1004, message: '订单不存在或信息不匹配' }, 404);
     }
 
     return {
