@@ -74,7 +74,7 @@
           </el-descriptions>
 
           <!-- Status actions -->
-          <div class="oact" v-if="detail.status !== 4 && detail.status !== 3">
+          <div class="oact" v-if="detail.status !== 4 && detail.status !== 5">
             <el-divider />
             <p style="margin-bottom:12px;font-weight:600">流转状态：</p>
             <el-button
