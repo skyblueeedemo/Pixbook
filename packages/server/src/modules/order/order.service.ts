@@ -64,7 +64,15 @@ export class OrderService {
       );
     }
 
-    // ── 3. Optimistic lock with 1 retry ───────────────
+    // ── 3. Ensure schedule row exists ────────────────
+    await this.prisma.$executeRaw`
+      INSERT IGNORE INTO schedules (date, max_slots, booked_slots, version, created_at, updated_at)
+      VALUES (${new Date(dto.scheduleDate)}, (
+        SELECT COALESCE(CAST(value AS UNSIGNED), 5) FROM config WHERE \`key\` = 'default_max_slots'
+      ), 0, 0, NOW(), NOW())
+    `;
+
+    // ── 4. Optimistic lock with 1 retry ───────────────
     const maxRetries = 2;
     for (let attempt = 0; attempt < maxRetries; attempt++) {
       const updated = await this.prisma.$executeRaw`

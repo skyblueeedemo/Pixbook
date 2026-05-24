@@ -43,7 +43,10 @@ export class ScheduleService {
       this.loadConfigs(),
       this.prisma.schedule.findMany({
         where: {
-          date: { gte: start.toDate(), lte: start.add(days - 1, 'day').toDate() },
+          date: {
+            gte: new Date(start.format('YYYY-MM-DD') + 'T00:00:00.000Z'),
+            lte: new Date(start.add(days - 1, 'day').format('YYYY-MM-DD') + 'T00:00:00.000Z'),
+          },
         },
       }),
     ]);
