@@ -6,31 +6,36 @@ export function useAuth() {
 
   /** Silent login on app launch — transparent to user */
   async function silentLogin() {
-    // Check if we already have a valid session
     const cached = uni.getStorageSync('session_key');
     if (cached) {
       sessionKey.value = cached;
+      console.log('[auth] session_key cached:', cached.slice(0, 8) + '...');
       return;
     }
 
     try {
-      const res = await new Promise<{ code: string }>((resolve, reject) => {
-        uni.login({
-          success: (loginRes) => resolve(loginRes),
-          fail: reject,
-        });
+      const loginRes = await new Promise<UniApp.LoginRes>((resolve, reject) => {
+        uni.login({ success: resolve, fail: reject });
       });
+      console.log('[auth] wx.login code:', loginRes.code?.slice(0, 8) + '...');
 
       const { data } = await api.post<{ sessionKey: string }>('/wechat/login', {
-        code: res.code,
+        code: loginRes.code,
       });
 
-      if (data.sessionKey) {
-        uni.setStorageSync('session_key', data.sessionKey);
-        sessionKey.value = data.sessionKey;
+      console.log('[auth] login response:', JSON.stringify(data));
+
+      if (data && (data as any).sessionKey) {
+        const key = (data as any).sessionKey;
+        uni.setStorageSync('session_key', key);
+        sessionKey.value = key;
+        console.log('[auth] session_key saved:', key.slice(0, 8) + '...');
+      } else {
+        console.warn('[auth] no sessionKey in response');
       }
-    } catch {
-      console.warn('Silent login failed — retry on next cold start');
+    } catch (e: any) {
+      console.error('[auth] login failed:', JSON.stringify(e));
+      uni.setStorageSync('login_error', JSON.stringify(e));
     }
   }
 
