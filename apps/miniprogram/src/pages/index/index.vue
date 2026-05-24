@@ -29,8 +29,11 @@ const monthTitle = computed(() => currentMonth.value.format('YYYY年M月'));
 
 onMounted(() => fetchCalendar());
 
-function onSuccess(orderId: string) {
-  uni.navigateTo({ url: `/pages/success/index?orderId=${orderId}` });
+function onSuccess(result: { orderId: string; photoCount: number }) {
+  const d = selectedDate.value;
+  uni.navigateTo({
+    url: `/pages/success/index?orderId=${result.orderId}&date=${d?.date ?? ''}&count=${result.photoCount}`,
+  });
 }
 </script>
 

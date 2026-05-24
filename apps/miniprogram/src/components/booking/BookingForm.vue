@@ -64,7 +64,7 @@ import { useBooking } from '@/composables/useBooking';
 import type { DayStatus } from '@/composables/useCalendar';
 
 const props = defineProps<{ date: DayStatus }>();
-const emit = defineEmits<{ success: [orderId: string] }>();
+const emit = defineEmits<{ success: [result: { orderId: string; photoCount: number }] }>();
 const { submitting, submit } = useBooking();
 const submitError = ref<string | null>(null);
 
@@ -90,7 +90,9 @@ async function handleSubmit() {
       photoCount: form.photoCount, requirements: form.requirements, additionalNotes: form.additionalNotes || undefined,
       expectedVersion: props.date.version,
     });
-    if (res.code === 0 || res.code === 1005) emit('success', res.data?.orderId ?? '');
+    if (res.code === 0 || res.code === 1005) {
+      emit('success', { orderId: res.data?.orderId ?? '', photoCount: form.photoCount });
+    }
   } catch (e: any) {
     submitError.value = e.data?.message ?? '提交失败，请检查网络后重试';
   }
