@@ -1,7 +1,7 @@
 # 项目状态 · Project State
 
-> 最后更新：2026-05
-> 当前阶段：Phase 0 — 项目初始化
+> 最后更新：2026-05-24
+> 当前阶段：Phase 1 核心后端 ✅ → Phase 2 小程序
 
 ---
 
@@ -19,31 +19,50 @@
 
 ## 当前阶段
 
-**Phase 0 — 项目初始化**
+**Phase 1 — 核心后端（已完成）**
 
 ## 当前模块
 
-项目骨架搭建（monorepo + uni-app + NestJS + Prisma + Docker Compose）
+后端 5 个模块全部编码完成并测试通过：
+- `schedule` — 排期日历 API（5 种状态 / 休息日 / Redis 缓存）
+- `order` — 订单提交（乐观锁 / 幂等 / 并发安全）
+- `wechat` — 微信登录（code → openid）
+- `config` — 管理后台配置 CRUD
+- `auth` — JWT 鉴权 Guard
+
+## 测试覆盖
+
+| 层级 | 结果 |
+|------|------|
+| 单元测试 | 17 个全过（OrderService 7 + ScheduleService 10） |
+| 并发压测 | 10 并发，零超卖 ✅ |
+| API 验证 | 6 个核心端点全部通过 curl 测试 |
+| TypeScript | 零类型错误 |
 
 ## 当前活跃任务
 
-- [x] 初始化 pnpm monorepo 工程 (`pnpm-workspace.yaml` + root `package.json`)
-- [x] 创建 `apps/miniprogram`（uni-app）、`apps/admin`（Vue 3 Web）、`packages/server`（NestJS）
-- [ ] 微信公众平台注册小程序，获取 AppID / AppSecret（需开发者自行注册）
-- [x] 编写 Prisma schema（schedules / orders / config / users 四张表 + seed）
-- [x] 配置 Docker Compose（MySQL 8 + Redis 7）
-- [x] 配置 Prettier + TypeScript（ESLint 待 `pnpm install` 后配置）
-
-## 阻断项
-
-- 微信 AppID / AppSecret 尚未获取：`apps/miniprogram/src/manifest.json` 中 `wxREPLACE_ME` 和 `.env.example` 中 `WX_APP_ID` / `WX_APP_SECRET` 需替换为真实值
+- [x] 后端模块 scaffold（5 个模块 controller/service/DTO）
+- [x] 乐观锁并发控制（INSERT IGNORE + UPDATE WHERE version）
+- [x] 日历 API（时区修复 / UTC 零点 / Redis 缓存）
+- [x] 管理后台登录 + JWT 鉴权
+- [x] 订单取消 + 名额释放
+- [x] 单元测试 + 并发压测
+- [ ] ESLint + GitHub Actions CI（仍待配置）
+- [ ] 微信登录真机联调（需微信开发者工具）
+- [ ] 管理后台前端开发
+- [ ] 小程序编译 + 真机预览
 
 ## 近期决策
 
-1. 前端日历组件借鉴 cal.com Booker 的 `useAvailableSlots` 设计模式
-2. 后端排期算法借鉴 Easy!Appointments 的 availability generation 思路
-3. 并发控制采用乐观锁 + 数据库事务方案（非 Redis 分布式锁）
+1. **D001** — uni-app (Vue 3/TS) 全家桶
+2. **D002** — NestJS 模块化后端
+3. **D003** — 乐观锁并发控制（非 Redis 锁）
+4. **D004** — 日历借鉴 cal.com Booker 的可用性状态机
+5. **D005** — 排期算法借鉴 Easy!Appointments
+6. **D006** — pnpm `shamefully-hoist=true` 解决 monorepo CLI 二进制问题
+7. **D007** — 日历查询使用 UTC 零点 ISO 字符串避免时区偏移
+8. **D008** — raw SQL INSERT IGNORE 需显式填充 `created_at`/`updated_at`
 
 ## 下一步计划
 
-完成 Phase 0 工程骨架 → 进入 Phase 1 核心后端开发
+Phase 2 — 小程序客户端开发（第 4–5 周）

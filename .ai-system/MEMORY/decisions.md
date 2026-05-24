@@ -66,3 +66,57 @@
 - 本项目将其从时间段制简化为名额制，核心思路不变
 
 **替代方案：** 自行设计 — 边界场景容易遗漏
+
+---
+
+## 2026-05-24 · Phase 1 实施决策
+
+### D006 · Monorepo CLI 解析：`shamefully-hoist=true`
+
+**决策：** 添加 `.npmrc` 配置 `shamefully-hoist=true`，使 pnpm monorepo 中子包的 CLI 二进制（如 `prisma`）可被直接调用
+
+**理由：**
+- pnpm 默认不 hoist 子包依赖的二进制，导致 `pnpm --filter @pixbook/server prisma migrate dev` 找不到 `prisma` 命令
+- `shamefully-hoist=true` 将所有包提升到根 node_modules，解决此问题
+- 相比在根 package.json 重复安装 devDeps，此方案更简洁
+
+**替代方案：** 在根 `package.json` 中重复安装 `prisma` 作为 devDep — 重复声明，容易版本不一致
+
+---
+
+### D007 · 日历查询：UTC 零点 ISO 字符串
+
+**决策：** 排期日历的日期范围查询使用 `new Date('2026-05-25T00:00:00.000Z')` 而非 `dayjs().toDate()`
+
+**理由：**
+- `dayjs('2026-05-25').toDate()` 在 UTC+8 时区创建的是 `2026-05-24T16:00:00.000Z`
+- Prisma 对 `@db.Date` 列提取 UTC 日期部分 → 变成 5 月 24 日，导致当天数据查不到
+- 使用 UTC 零点 ISO 字符串确保日期部分正确
+
+**替代方案：** 使用 `prisma.$queryRaw` 原始 SQL — 失去 Prisma 类型安全
+
+---
+
+### D008 · INSERT IGNORE：显式填充时间戳
+
+**决策：** raw SQL `INSERT IGNORE` 必须显式设置 `created_at = NOW(), updated_at = NOW()`
+
+**理由：**
+- Prisma schema 中 `@default(now())` 和 `@updatedAt` 仅在 Prisma Client 操作时生效
+- raw SQL 执行时，MySQL 默认值可能为 `0000-00-00 00:00:00`，触发 `sql_mode` 严格模式报错
+- 显式填充避免此问题
+
+**替代方案：** 为 MySQL 列设置 DEFAULT CURRENT_TIMESTAMP — 但 Prisma migration 不生成此 DDL
+
+---
+
+### D009 · 日历缓存策略：`calendar:*` 通配删除
+
+**决策：** 订单提交成功后，使用 `DEL calendar:*` 通配删除所有日历缓存 key
+
+**理由：**
+- 日历有多个变体（不同 startDate + days 组合），无法精确定位受影响的 key
+- TTL 只有 60s，通配删除简单可控
+- 写操作频率低（预约场景非高频写），不会造成 Redis 性能问题
+
+**替代方案：** 按具体日期删除 `calendar:2026-05-25:*` — 但仍需通配，Redis 通配删除 O(N) 不可避免
