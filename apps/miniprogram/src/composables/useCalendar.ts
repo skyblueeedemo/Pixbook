@@ -1,4 +1,5 @@
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import dayjs from 'dayjs';
 import { api } from '@/api';
 
 export interface DayStatus {
@@ -13,9 +14,9 @@ export function useCalendar() {
   const days = ref<DayStatus[]>([]);
   const loading = ref(false);
   const selectedDate = ref<DayStatus | null>(null);
+  const currentMonth = ref(dayjs().startOf('month').add(1, 'month')); // next month
 
   async function fetchCalendar(forceRefresh = false) {
-    // Local 60s cache using wx storage (persists across page navigation)
     if (!forceRefresh) {
       const cached = uni.getStorageSync('calendar_cache');
       const cacheTime = uni.getStorageSync('calendar_cache_time');
@@ -27,7 +28,9 @@ export function useCalendar() {
 
     loading.value = true;
     try {
-      const res = await api.get<{ code: number; data: DayStatus[] }>('/schedule/calendar');
+      const start = currentMonth.value.format('YYYY-MM-DD');
+      // Show 35 days to fill 5 rows of a monthly calendar
+      const res = await api.get<{ code: number; data: DayStatus[] }>(`/schedule/calendar?startDate=${start}&days=35`);
       const data = res.data;
       uni.setStorageSync('calendar_cache', data);
       uni.setStorageSync('calendar_cache_time', Date.now());
