@@ -101,6 +101,18 @@
 
 ---
 
+## Phase 3 管理后台
+
+### L010 · NestJS ValidationPipe 不会自动转换查询参数类型
+
+**发现：** Express 的 `req.query` 中所有值都是字符串。即使 ValidationPipe 开启了 `transform: true`，`@IsInt()` 校验仍会因收到 `"1"` (string) 而非 `1` (number) 而返回 400。
+
+**解决：** 添加 `transformOptions: { enableImplicitConversion: true }`，NestJS 自动将字符串查询参数转为 DTO 声明的类型。
+
+**教训：** 碰到 400 + validation error 但参数明显正确时，先怀疑类型转换。
+
+---
+
 ## 待记录
 
 _随着开发推进，在此记录：_

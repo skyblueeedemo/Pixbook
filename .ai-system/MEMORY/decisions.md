@@ -175,3 +175,25 @@
 - 后端 `findFirst` + `createdAt: desc` 返回最新一条匹配订单
 
 **替代方案：** 仅手机号查询 — 安全性差（任意手机号可查他人订单）
+
+---
+
+## 2026-05-24 · Phase 3 实施决策
+
+### D014 · 管理端接口：独立 Admin Controller
+
+**决策：** 管理端订单接口使用独立 `OrderAdminController`（路径 `/api/admin/orders`），而非挂在用户端 Controller 下
+
+**理由：**
+- 管理端需要完整列表 + 筛选 + 分页，用户端只需要双因子单条查询
+- `@UseGuards(AuthGuard)` 在 Controller 级别统一保护所有管理接口
+- 路径层级清晰：`/api/admin/*` vs `/api/order/*`
+
+### D015 · Query DTO 隐式类型转换
+
+**决策：** ValidationPipe 开启 `transformOptions: { enableImplicitConversion: true }`
+
+**理由：**
+- 查询参数始终是字符串，DTO 中 `@IsInt()` 需要先转为 number
+- 不用在每个 DTO 字段上加 `@Type(() => Number)` 装饰器
+- 全局生效，减少样板代码
