@@ -1,7 +1,15 @@
 <template>
   <view class="pg">
     <view class="hd"><text class="hd-t">修图预约</text></view>
-    <BookingCalendar :days="days" :loading="loading" :selected-date="selectedDate" @select="selectDate" />
+    <BookingCalendar
+      :days="days"
+      :loading="loading"
+      :selected-date="selectedDate"
+      :month-title="monthTitle"
+      @select="selectDate"
+      @prev-month="prevMonth"
+      @next-month="nextMonth"
+    />
     <view v-if="selectedDate" class="info">
       已选 {{ selectedDate.date }} · 余 {{ selectedDate.availableSlots }} 单
     </view>
@@ -10,12 +18,15 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useCalendar } from '@/composables/useCalendar';
 import BookingCalendar from '@/components/calendar/BookingCalendar.vue';
 import BookingForm from '@/components/booking/BookingForm.vue';
 
-const { days, loading, selectedDate, fetchCalendar, selectDate } = useCalendar();
+const { days, loading, selectedDate, currentMonth, fetchCalendar, selectDate, prevMonth, nextMonth } = useCalendar();
+
+const monthTitle = computed(() => currentMonth.value.format('YYYY年M月'));
+
 onMounted(() => fetchCalendar());
 
 function onSuccess(orderId: string) {

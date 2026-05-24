@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import dayjs from 'dayjs';
 import { api } from '@/api';
 
@@ -14,12 +14,15 @@ export function useCalendar() {
   const days = ref<DayStatus[]>([]);
   const loading = ref(false);
   const selectedDate = ref<DayStatus | null>(null);
-  const currentMonth = ref(dayjs().startOf('month').add(1, 'month')); // next month
+  const currentMonth = ref(dayjs()); // today's month, can switch
 
-  async function fetchCalendar(forceRefresh = false) {
+  async function fetchCalendar(forceRefresh = false, month?: dayjs.Dayjs) {
+    const m = month ?? currentMonth.value;
+    const cacheKey = `cal_${m.format('YYYY-MM')}`;
+
     if (!forceRefresh) {
-      const cached = uni.getStorageSync('calendar_cache');
-      const cacheTime = uni.getStorageSync('calendar_cache_time');
+      const cached = uni.getStorageSync(cacheKey);
+      const cacheTime = uni.getStorageSync(cacheKey + '_t');
       if (cached && Date.now() - cacheTime < 60_000) {
         days.value = cached;
         return;
@@ -28,19 +31,50 @@ export function useCalendar() {
 
     loading.value = true;
     try {
-      const start = currentMonth.value.format('YYYY-MM-DD');
-      // Show 35 days to fill 5 rows of a monthly calendar
-      const res = await api.get<{ code: number; data: DayStatus[] }>(`/schedule/calendar?startDate=${start}&days=35`);
+      const startOfMonth = m.startOf('month');
+      const daysInMonth = m.daysInMonth();
+      const start = startOfMonth.format('YYYY-MM-DD');
+
+      const res = await api.get<{ code: number; data: DayStatus[] }>(
+        `/schedule/calendar?startDate=${start}&days=${daysInMonth}`
+      );
       const data = res.data;
-      uni.setStorageSync('calendar_cache', data);
-      uni.setStorageSync('calendar_cache_time', Date.now());
-      days.value = data;
+
+      // Mark days before tomorrow as unavailable (T+1 rule)
+      const tomorrow = dayjs().add(1, 'day').format('YYYY-MM-DD');
+      const result = data.map((d) => {
+        if (d.date < tomorrow) {
+          return { ...d, status: 'unavailable' as const, availableSlots: 0, maxSlots: 0 };
+        }
+        return d;
+      });
+
+      uni.setStorageSync(cacheKey, result);
+      uni.setStorageSync(cacheKey + '_t', Date.now());
+      days.value = result;
     } finally {
       loading.value = false;
     }
   }
 
-  /** Force refresh after concurrency conflict (PRD §3.4) */
+  function prevMonth() {
+    currentMonth.value = currentMonth.value.subtract(1, 'month');
+    fetchCalendar(true, currentMonth.value);
+    selectedDate.value = null;
+  }
+
+  function nextMonth() {
+    currentMonth.value = currentMonth.value.add(1, 'month');
+    fetchCalendar(true, currentMonth.value);
+    selectedDate.value = null;
+  }
+
+  function goToday() {
+    currentMonth.value = dayjs();
+    fetchCalendar(true, currentMonth.value);
+    selectedDate.value = null;
+  }
+
   async function refresh() {
     return fetchCalendar(true);
   }
@@ -50,5 +84,5 @@ export function useCalendar() {
     selectedDate.value = day;
   }
 
-  return { days, loading, selectedDate, fetchCalendar, refresh, selectDate };
+  return { days, loading, selectedDate, currentMonth, fetchCalendar, refresh, selectDate, prevMonth, nextMonth, goToday };
 }
