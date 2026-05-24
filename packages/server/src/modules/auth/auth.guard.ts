@@ -22,7 +22,8 @@ export class AuthGuard implements CanActivate {
     const token = authHeader.slice(7);
     try {
       const payload = await this.jwtService.verifyAsync(token);
-      (req as Record<string, unknown>).user = payload;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (req as any).user = payload;
       return true;
     } catch {
       throw new UnauthorizedException({ code: 401, message: 'Token 无效或已过期' });
