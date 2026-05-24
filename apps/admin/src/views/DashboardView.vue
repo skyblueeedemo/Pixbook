@@ -3,6 +3,16 @@
     <div class="dt">
       <h3>数据总览</h3>
 
+      <!-- Summary cards -->
+      <el-row :gutter="12" style="margin-bottom:16px">
+        <el-col :span="6" v-for="c in summaryCards" :key="c.label">
+          <el-card shadow="hover">
+            <div class="dcv">{{ c.value }}</div>
+            <div class="dcl">{{ c.label }}</div>
+          </el-card>
+        </el-col>
+      </el-row>
+
       <!-- Status cards -->
       <el-row :gutter="12" style="margin-bottom:20px">
         <el-col :span="4" v-for="c in statusCards" :key="c.label">
@@ -11,7 +21,7 @@
             :class="['dsc', { 'dsc-sel': activeStatus === c.status }]"
             @click="filterBy(c.status)"
           >
-            <div class="dcv">{{ c.count }}</div>
+            <div class="dcv dcv-s">{{ c.count }}</div>
             <div class="dcl">{{ c.label }}</div>
           </el-card>
         </el-col>
@@ -76,6 +86,13 @@ const statusCards = reactive(
   statusList.map((s) => ({ status: s.status, label: s.label, count: '-' })),
 );
 
+const summaryCards = reactive([
+  { label: '今日预约', value: '-' },
+  { label: '本月订单', value: '-' },
+  { label: '待处理', value: '-' },
+  { label: '总订单', value: '-' },
+]);
+
 const stags: Record<number, string> = { 0: 'warning', 1: '', 2: 'primary', 3: '', 4: 'success', 5: 'info' };
 function st(s: number) { return stags[s] ?? 'info'; }
 function statusLabel(s: number) { return statusList.find((x) => x.status === s)?.label ?? ''; }
@@ -84,15 +101,33 @@ function fmt(d: string) { return (d ?? '').slice(0, 10); }
 async function loadAll() {
   loading.value = true;
   try {
-    // Fetch count for each status + total in parallel
-    const counts = await Promise.all(
-      statusList.map((s) =>
-        api.get('/admin/orders', { params: { status: s.status, page: 1, pageSize: 1 } }).then((r) => r.data.data.total),
-      ),
-    );
-    statusList.forEach((_, i) => {
-      statusCards[i].count = String(counts[i]);
-    });
+    const today = new Date().toISOString().slice(0, 10);
+    const thisMonth = today.slice(0, 7);
+
+    // Fetch all stats in parallel
+    const results = await Promise.all([
+      // Summary cards
+      api.get('/admin/orders', { params: { dateFrom: today, dateTo: today, page: 1, pageSize: 1 } }),
+      api.get('/admin/orders', { params: { dateFrom: `${thisMonth}-01`, dateTo: today, page: 1, pageSize: 1 } }),
+      api.get('/admin/orders', { params: { status: 0, page: 1, pageSize: 1 } }),
+      api.get('/admin/orders', { params: { page: 1, pageSize: 1 } }),
+      // Status counts
+      api.get('/admin/orders', { params: { status: 0, page: 1, pageSize: 1 } }),
+      api.get('/admin/orders', { params: { status: 1, page: 1, pageSize: 1 } }),
+      api.get('/admin/orders', { params: { status: 2, page: 1, pageSize: 1 } }),
+      api.get('/admin/orders', { params: { status: 3, page: 1, pageSize: 1 } }),
+      api.get('/admin/orders', { params: { status: 4, page: 1, pageSize: 1 } }),
+      api.get('/admin/orders', { params: { status: 5, page: 1, pageSize: 1 } }),
+    ]);
+
+    summaryCards[0].value = String(results[0].data.data.total);
+    summaryCards[1].value = String(results[1].data.data.total);
+    summaryCards[2].value = String(results[2].data.data.total);
+    summaryCards[3].value = String(results[3].data.data.total);
+
+    for (let i = 0; i < 6; i++) {
+      statusCards[i].count = String(results[4 + i].data.data.total);
+    }
   } catch { /* silent */ }
 
   await fetchOrders();
@@ -125,5 +160,6 @@ onMounted(() => loadAll());
 .dsc:hover { border-color: #409eff; }
 .dsc-sel { border-color: #409eff; background: #ecf5ff; }
 .dcv { font-size: 24px; font-weight: 700; color: #409eff; }
+.dcv-s { font-size: 20px; }
 .dcl { font-size: 12px; color: #999; margin-top: 4px; }
 </style>
