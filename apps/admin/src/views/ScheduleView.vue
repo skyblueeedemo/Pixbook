@@ -38,7 +38,7 @@
 
       <!-- Edit dialog -->
       <el-dialog v-model="dialog" :title="'编辑 ' + editDate" width="480px">
-        <el-form label-width="80px" style="margin-bottom:16px">
+        <el-form label-width="90px" style="margin-bottom:16px">
           <el-form-item label="接单上限">
             <el-input-number v-model="editMaxSlots" :min="0" :max="99" />
             <span style="margin-left:8px;color:#999;font-size:12px">0 = 不接单</span>
