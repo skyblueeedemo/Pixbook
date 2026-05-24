@@ -118,14 +118,12 @@ async function loadAll() {
     const today = new Date().toISOString().slice(0, 10);
     const thisMonth = today.slice(0, 7);
 
-    // Fetch all stats in parallel
-    const results = await Promise.all([
-      // Summary cards
+    // Fetch all stats in parallel (individual error handling)
+    const settled = await Promise.allSettled([
       api.get('/admin/orders', { params: { dateFrom: today, dateTo: today, page: 1, pageSize: 1 } }),
       api.get('/admin/orders', { params: { dateFrom: `${thisMonth}-01`, dateTo: today, page: 1, pageSize: 1 } }),
       api.get('/admin/orders', { params: { status: 0, page: 1, pageSize: 1 } }),
       api.get('/admin/orders', { params: { page: 1, pageSize: 1 } }),
-      // Status counts
       api.get('/admin/orders', { params: { status: 0, page: 1, pageSize: 1 } }),
       api.get('/admin/orders', { params: { status: 1, page: 1, pageSize: 1 } }),
       api.get('/admin/orders', { params: { status: 2, page: 1, pageSize: 1 } }),
@@ -134,14 +132,15 @@ async function loadAll() {
       api.get('/admin/orders', { params: { status: 5, page: 1, pageSize: 1 } }),
     ]);
 
-    summaryCards[0].value = String(results[0].data.data.total);  // 今日
-    summaryCards[1].value = String(results[1].data.data.total);   // 本月
-    // 待处理 = 待确认 + 已确认 + 修图中
-    summaryCards[2].value = String(results[4].data.data.total + results[5].data.data.total + results[6].data.data.total);
-    summaryCards[3].value = String(results[3].data.data.total);   // 总单
+    const vals = settled.map((r) => (r.status === 'fulfilled' ? r.value.data.data.total : 0));
+
+    summaryCards[0].value = String(vals[0]);  // 今日
+    summaryCards[1].value = String(vals[1]);   // 本月
+    summaryCards[2].value = String(vals[4] + vals[5] + vals[6]); // 待处理 = 0+1+2
+    summaryCards[3].value = String(vals[3]);   // 总单
 
     for (let i = 0; i < 6; i++) {
-      statusCards[i].count = String(results[4 + i].data.data.total);
+      statusCards[i].count = String(vals[4 + i]);
     }
   } catch { /* silent */ }
 
