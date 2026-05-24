@@ -1,0 +1,256 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','PingFang SC','Helvetica Neue',sans-serif}
+.stage{display:flex;gap:20px;padding:16px 8px;overflow-x:auto;align-items:flex-start;justify-content:center}
+.phone{width:320px;flex-shrink:0;background:#1a1a1a;border-radius:44px;padding:10px;position:relative}
+.phone-inner{background:var(--color-background-primary);border-radius:36px;overflow:hidden;position:relative}
+.status-bar{background:var(--color-background-primary);padding:14px 20px 8px;display:flex;justify-content:space-between;align-items:center}
+.status-time{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.status-icons{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--color-text-primary)}
+.notch{width:110px;height:30px;background:#1a1a1a;border-radius:0 0 18px 18px;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:10}
+.screen-label{font-size:10px;color:var(--color-text-tertiary);text-align:center;margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase}
+
+.nav-bar{padding:10px 16px 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--color-border-tertiary)}
+.nav-title{font-size:17px;font-weight:500;color:var(--color-text-primary)}
+.nav-btn{background:none;border:none;font-size:13px;color:#1D9E75;cursor:pointer;padding:4px;font-family:inherit}
+.nav-icon{font-size:20px;color:var(--color-text-secondary)}
+
+.scroll-content{padding:0 0 80px}
+
+.section-pad{padding:14px 16px}
+
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-month{font-size:15px;font-weight:500}
+.cal-nav-btn{background:none;border:none;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;cursor:pointer;color:var(--color-text-secondary)}
+.cal-nav-btn:active{background:var(--color-background-secondary)}
+
+.week-row{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px}
+.wh{font-size:11px;color:var(--color-text-tertiary);text-align:center;padding:4px 0}
+
+.day-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.dc{border-radius:10px;padding:5px 2px;text-align:center;cursor:pointer;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.dn{font-size:14px;font-weight:500;line-height:1}
+.ds{font-size:9px;line-height:1.2;margin-top:2px}
+
+.dc-avail{background:#EAF3DE}.dc-avail .dn{color:#27500A}.dc-avail .ds{color:#3B6D11}
+.dc-hot{background:#FAEEDA}.dc-hot .dn{color:#633806}.dc-hot .ds{color:#854F0B}
+.dc-full{background:#FCEBEB;cursor:not-allowed}.dc-full .dn{color:#791F1F}.dc-full .ds{color:#A32D2D}
+.dc-off{background:var(--color-background-secondary);cursor:not-allowed}.dc-off .dn{color:var(--color-text-tertiary)}.dc-off .ds{color:var(--color-text-tertiary)}
+.dc-today{outline:2px solid #378ADD;outline-offset:-2px}
+.dc-sel{outline:2.5px solid #1D9E75;outline-offset:-2px}
+.dc-empty{background:none;cursor:default}
+
+.legend-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.leg{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--color-text-secondary)}
+.legdot{width:8px;height:8px;border-radius:3px}
+
+.sel-banner{margin:0 16px;background:#EAF3DE;border-radius:12px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;border:0.5px solid #97C459}
+.sel-date{font-size:13px;font-weight:500;color:#27500A}
+.sel-slot{font-size:11px;background:#fff;color:#3B6D11;border:0.5px solid #97C459;border-radius:20px;padding:2px 8px}
+
+.form-block{padding:14px 16px}
+.fl{font-size:12px;color:var(--color-text-secondary);margin-bottom:5px;display:flex;align-items:center;gap:2px}
+.req{color:#E24B4A;font-size:12px}
+.fi{width:100%;border:0.5px solid var(--color-border-secondary);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--color-text-primary);background:var(--color-background-primary);font-family:inherit;margin-bottom:12px}
+.fi:focus{outline:none;border-color:#1D9E75}
+.fhint{font-size:11px;color:var(--color-text-tertiary);margin-top:-8px;margin-bottom:12px;padding-left:2px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.cta-bar{padding:12px 16px;border-top:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary)}
+.cta-btn{width:100%;background:#1D9E75;color:#fff;border:none;border-radius:14px;padding:15px;font-size:16px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px}
+.terms-txt{font-size:11px;color:var(--color-text-tertiary);text-align:center;margin-top:8px}
+
+.success-hero{padding:32px 16px 20px;text-align:center}
+.check-ring{width:72px;height:72px;border-radius:50%;background:#EAF3DE;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;border:2px solid #97C459}
+.check-ring i{font-size:36px;color:#1D9E75}
+.hero-h{font-size:22px;font-weight:500;color:#27500A;margin-bottom:6px}
+.hero-s{font-size:14px;color:var(--color-text-secondary);line-height:1.5}
+
+.order-card{margin:0 16px 12px;border:0.5px solid var(--color-border-tertiary);border-radius:16px;overflow:hidden}
+.oc-head{background:var(--color-background-secondary);padding:12px 14px;display:flex;align-items:center;justify-content:space-between}
+.oc-id{font-size:13px;font-weight:500;letter-spacing:.3px}
+.copy-pill{background:#EAF3DE;color:#3B6D11;border:0.5px solid #97C459;border-radius:20px;padding:3px 10px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:3px}
+.oc-body{padding:12px 14px}
+.oc-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:13px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.oc-row:last-child{border-bottom:none}
+.oc-k{color:var(--color-text-secondary)}
+.oc-v{font-weight:500;color:var(--color-text-primary)}
+.status-pill-pend{background:#FAEEDA;color:#854F0B;border:0.5px solid #EF9F27;border-radius:20px;padding:2px 8px;font-size:11px}
+
+.notice-box{margin:0 16px 12px;background:#E6F1FB;border-radius:12px;padding:10px 12px;display:flex;gap:8px;align-items:flex-start;border:0.5px solid #85B7EB}
+.notice-box i{font-size:16px;color:#185FA5;flex-shrink:0;margin-top:1px}
+.notice-box p{font-size:12px;color:#0C447C;line-height:1.6}
+
+.action-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px 16px}
+.act-out{border:0.5px solid var(--color-border-secondary);background:none;border-radius:12px;padding:13px;font-size:14px;cursor:pointer;color:var(--color-text-primary);font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
+.act-pri{background:#1D9E75;border:none;border-radius:12px;padding:13px;font-size:14px;cursor:pointer;color:#fff;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:500}
+
+.tab-bar{display:flex;border-top:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);padding:8px 0 18px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer}
+.tab i{font-size:22px;color:var(--color-text-tertiary)}
+.tab span{font-size:10px;color:var(--color-text-tertiary)}
+.tab.active i{color:#1D9E75}
+.tab.active span{color:#1D9E75}
+</style>
+
+<h2 class="sr-only">修图预约 App 客户端原型图，包含首页预约、预约成功两个屏幕</h2>
+
+<div class="stage">
+
+<div>
+<div class="screen-label">① 首页 · 预约日历</div>
+<div class="phone">
+  <div class="notch"></div>
+  <div class="phone-inner">
+    <div class="status-bar">
+      <div class="status-time">9:41</div>
+      <div class="status-icons">
+        <i class="ti ti-wifi" style="font-size:14px" aria-hidden="true"></i>
+        <i class="ti ti-battery-2" style="font-size:14px" aria-hidden="true"></i>
+      </div>
+    </div>
+    <div class="nav-bar">
+      <div style="width:40px"></div>
+      <div class="nav-title">修图预约</div>
+      <button class="nav-btn">查询</button>
+    </div>
+    <div class="scroll-content">
+      <div class="section-pad">
+        <div class="cal-header">
+          <button class="cal-nav-btn"><i class="ti ti-chevron-left" style="font-size:16px" aria-hidden="true"></i></button>
+          <div class="cal-month">2026年5月</div>
+          <button class="cal-nav-btn"><i class="ti ti-chevron-right" style="font-size:16px" aria-hidden="true"></i></button>
+        </div>
+        <div class="week-row">
+          <div class="wh">日</div><div class="wh">一</div><div class="wh">二</div><div class="wh">三</div><div class="wh">四</div><div class="wh">五</div><div class="wh">六</div>
+        </div>
+        <div class="day-grid">
+          <div class="dc dc-empty"></div><div class="dc dc-empty"></div><div class="dc dc-empty"></div><div class="dc dc-empty"></div>
+          <div class="dc dc-off"><div class="dn">1</div><div class="ds">假期</div></div>
+          <div class="dc dc-off"><div class="dn">2</div><div class="ds">过期</div></div>
+          <div class="dc dc-off"><div class="dn">3</div><div class="ds">过期</div></div>
+
+          <div class="dc dc-off"><div class="dn">4</div></div><div class="dc dc-off"><div class="dn">5</div></div><div class="dc dc-off"><div class="dn">6</div></div>
+          <div class="dc dc-off"><div class="dn">7</div></div><div class="dc dc-off"><div class="dn">8</div></div><div class="dc dc-off"><div class="dn">9</div></div><div class="dc dc-off"><div class="dn">10</div></div>
+
+          <div class="dc dc-off"><div class="dn">11</div></div><div class="dc dc-off"><div class="dn">12</div></div><div class="dc dc-off"><div class="dn">13</div></div>
+          <div class="dc dc-off"><div class="dn">14</div></div><div class="dc dc-off"><div class="dn">15</div></div><div class="dc dc-off"><div class="dn">16</div></div><div class="dc dc-off"><div class="dn">17</div></div>
+
+          <div class="dc dc-off"><div class="dn">18</div></div><div class="dc dc-off"><div class="dn">19</div></div><div class="dc dc-off"><div class="dn">20</div></div>
+          <div class="dc dc-off"><div class="dn">21</div></div><div class="dc dc-off"><div class="dn">22</div></div><div class="dc dc-off"><div class="dn">23</div></div>
+          <div class="dc dc-off dc-today"><div class="dn">24</div><div class="ds">今日</div></div>
+
+          <div class="dc dc-off"><div class="dn">25</div><div class="ds">休息</div></div>
+          <div class="dc dc-avail"><div class="dn">26</div><div class="ds">余3单</div></div>
+          <div class="dc dc-avail"><div class="dn">27</div><div class="ds">余4单</div></div>
+          <div class="dc dc-avail dc-sel"><div class="dn">28</div><div class="ds">余3单</div></div>
+          <div class="dc dc-hot"><div class="dn">29</div><div class="ds">余1单</div></div>
+          <div class="dc dc-full"><div class="dn">30</div><div class="ds">已满</div></div>
+          <div class="dc dc-off"><div class="dn">31</div><div class="ds">休息</div></div>
+        </div>
+        <div class="legend-row">
+          <div class="leg"><div class="legdot" style="background:#EAF3DE;border:0.5px solid #97C459"></div>可预约</div>
+          <div class="leg"><div class="legdot" style="background:#FAEEDA;border:0.5px solid #EF9F27"></div>即将满</div>
+          <div class="leg"><div class="legdot" style="background:#FCEBEB;border:0.5px solid #F09595"></div>已满</div>
+          <div class="leg"><div class="legdot" style="background:var(--color-background-secondary)"></div>不可约</div>
+        </div>
+      </div>
+
+      <div class="sel-banner">
+        <div class="sel-date"><i class="ti ti-check" style="font-size:13px;vertical-align:-1px;margin-right:4px" aria-hidden="true"></i>2026年5月28日（周四）</div>
+        <div class="sel-slot">余3单</div>
+      </div>
+
+      <div class="form-block">
+        <div class="fl">客户姓名 <span class="req">*</span></div>
+        <input class="fi" type="text" value="张三" readonly>
+        <div class="fl">联系方式 <span class="req">*</span></div>
+        <input class="fi" type="text" value="138****0000" readonly>
+        <div class="fhint"><i class="ti ti-info-circle" style="font-size:12px;vertical-align:-1px" aria-hidden="true"></i> 仅用于预约确认</div>
+        <div class="frow">
+          <div>
+            <div class="fl">修图张数 <span class="req">*</span></div>
+            <input class="fi" type="number" value="10" readonly style="width:100%">
+          </div>
+          <div>
+            <div class="fl">上限</div>
+            <input class="fi" value="50 张上限" readonly style="width:100%;color:var(--color-text-tertiary)">
+          </div>
+        </div>
+        <div class="fl">修图需求 <span class="req">*</span></div>
+        <textarea class="fi" rows="3" readonly style="resize:none">人像精修，保留自然感，磨皮适度，不要过度液化</textarea>
+        <div style="display:flex;justify-content:flex-end;font-size:11px;color:var(--color-text-tertiary);margin-top:-10px;margin-bottom:12px">42 / 500</div>
+        <div class="fl">附加说明</div>
+        <input class="fi" type="text" placeholder="交付格式、参考图说明（选填）">
+      </div>
+    </div>
+    <div class="cta-bar">
+      <button class="cta-btn"><i class="ti ti-calendar-check" aria-hidden="true"></i>提交预约</button>
+      <div class="terms-txt">提交即视为同意服务条款</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div>
+<div class="screen-label">② 预约成功</div>
+<div class="phone">
+  <div class="notch"></div>
+  <div class="phone-inner">
+    <div class="status-bar">
+      <div class="status-time">9:43</div>
+      <div class="status-icons">
+        <i class="ti ti-wifi" style="font-size:14px" aria-hidden="true"></i>
+        <i class="ti ti-battery-2" style="font-size:14px" aria-hidden="true"></i>
+      </div>
+    </div>
+    <div class="nav-bar">
+      <div style="width:40px"></div>
+      <div class="nav-title">预约结果</div>
+      <div style="width:40px"></div>
+    </div>
+    <div style="padding-bottom:100px">
+      <div class="success-hero">
+        <div class="check-ring"><i class="ti ti-circle-check" aria-hidden="true"></i></div>
+        <div class="hero-h">预约成功！</div>
+        <div class="hero-s">订单已提交，请保存以下凭证<br>修图师确认后将开始安排</div>
+      </div>
+
+      <div class="order-card">
+        <div class="oc-head">
+          <div>
+            <div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:2px">订单号</div>
+            <div class="oc-id">ORD20260528001</div>
+          </div>
+          <div class="copy-pill"><i class="ti ti-copy" style="font-size:12px" aria-hidden="true"></i>复制</div>
+        </div>
+        <div class="oc-body">
+          <div class="oc-row"><span class="oc-k">预约日期</span><span class="oc-v">2026年5月28日</span></div>
+          <div class="oc-row"><span class="oc-k">修图张数</span><span class="oc-v">10 张</span></div>
+          <div class="oc-row"><span class="oc-k">客户姓名</span><span class="oc-v">张三</span></div>
+          <div class="oc-row"><span class="oc-k">提交时间</span><span class="oc-v">09:43</span></div>
+          <div class="oc-row"><span class="oc-k">当前状态</span><span class="status-pill-pend">待确认</span></div>
+        </div>
+      </div>
+
+      <div class="notice-box">
+        <i class="ti ti-info-circle" aria-hidden="true"></i>
+        <p>请截图保存此页，或记录订单号。可在首页「查询订单」凭手机号+订单号查看进度。</p>
+      </div>
+
+      <div class="action-row">
+        <button class="act-out"><i class="ti ti-search" style="font-size:16px" aria-hidden="true"></i>查询订单</button>
+        <button class="act-pri"><i class="ti ti-home" style="font-size:16px" aria-hidden="true"></i>返回首页</button>
+      </div>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab active"><i class="ti ti-home" aria-hidden="true"></i><span>首页</span></div>
+      <div class="tab"><i class="ti ti-clipboard-list" aria-hidden="true"></i><span>我的预约</span></div>
+      <div class="tab"><i class="ti ti-user" aria-hidden="true"></i><span>我的</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div>
