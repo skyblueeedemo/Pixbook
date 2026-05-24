@@ -211,8 +211,8 @@ export class OrderService {
     }
     if (query.dateFrom || query.dateTo) {
       where.scheduleDate = {};
-      if (query.dateFrom) where.scheduleDate.gte = new Date(query.dateFrom);
-      if (query.dateTo) where.scheduleDate.lte = new Date(query.dateTo);
+      if (query.dateFrom) where.scheduleDate.gte = new Date(query.dateFrom + 'T00:00:00.000Z');
+      if (query.dateTo) where.scheduleDate.lte = new Date(query.dateTo + 'T23:59:59.999Z');
     }
     if (query.keyword) {
       where.OR = [

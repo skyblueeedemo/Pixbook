@@ -136,7 +136,7 @@ async function loadAll() {
 
     summaryCards[0].value = String(vals[0]);  // 今日
     summaryCards[1].value = String(vals[1]);   // 本月
-    summaryCards[2].value = String(vals[4] + vals[5] + vals[6]); // 待处理 = 0+1+2
+    summaryCards[2].value = String(vals[5] + vals[6]); // 待处理 = 已确认 + 修图中
     summaryCards[3].value = String(vals[3]);   // 总单
 
     for (let i = 0; i < 6; i++) {
@@ -169,14 +169,14 @@ async function fetchOrders() {
       return;
     }
     if (activeFilter.value === 2) {
-      // Pending = 待确认 + 已确认 + 修图中
-      const [r0, r1, r2] = await Promise.all([0, 1, 2].map((s) =>
+      // Pending = 已确认 + 修图中
+      const [r1, r2] = await Promise.all([1, 2].map((s) =>
         api.get('/admin/orders', { params: { status: s, page: 1, pageSize: 10 } }),
       ));
-      orders.value = [...r0.data.data.list, ...r1.data.data.list, ...r2.data.data.list]
+      orders.value = [...r1.data.data.list, ...r2.data.data.list]
         .sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? ''))
         .slice(0, 20);
-      filteredTotal.value = r0.data.data.total + r1.data.data.total + r2.data.data.total;
+      filteredTotal.value = r1.data.data.total + r2.data.data.total;
       return;
     }
     if (activeFilter.value === 3) {
