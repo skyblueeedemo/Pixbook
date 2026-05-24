@@ -113,6 +113,28 @@
 
 ---
 
+---
+
+### L011 · Prisma 不会接受 MySQL 的 `0000-00-00` 日期
+
+**发现：** INSERT IGNORE 没有显式 `updated_at` → MySQL 填入 `0000-00-00 00:00:00.000` → Prisma 读取时抛出 "Value out of range"。
+
+**解决：** 删除坏行，确保所有 INSERT 都提供 `NOW()`。
+
+**教训：** 不要手动 `INSERT IGNORE` Prisma 管理的表 — 用 Service 层的 `upsert`。
+
+---
+
+### L012 · 多个配置 key 命名不一致导致静默失败
+
+**发现：** `booking_range_days` vs `booking_days` vs `bookingDays` 三处不一致，导致配置页读取空白、预约约束不生效。三个地方各自用各自的命名，没有报错只有静默的数据不匹配。
+
+**解决：** 统一为 `booking_days`，DB key / service field / API field / frontend field 全部对齐。
+
+**教训：** 新增配置项时先 grep 确认 key 的唯一性，在一处定义、多处引用。
+
+---
+
 ## 待记录
 
 _随着开发推进，在此记录：_

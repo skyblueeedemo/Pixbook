@@ -14,8 +14,8 @@
 |------|------|:--:|
 | `GET /api/admin/config` | 返回全局配置 | ✅ |
 | `GET /api/admin/config` (auth) | JWT Guard 保护 | ✅ |
-| PUT 更新配置 | ConfigService.updateConfig() | ⚪ 代码已写，未测试 |
-| 特定日期名额覆盖 | — | ⚪ 未实现 |
+| PUT 更新配置 | ConfigService.updateConfig() | ✅ |
+| 特定日期名额覆盖 | PUT /admin/schedule/:date | ✅ |
 
 ### 模块 2：排期日历 API ✅
 
@@ -25,6 +25,8 @@
 | 5 种状态判定 | available / almost_full / full / unavailable / rest | ✅ |
 | Redis 缓存层 | TTL 60s，写操作 `DEL calendar:*` 主动失效 | ✅ |
 | 时区修复 | UTC 零点 ISO 字符串，避免时区偏移 | ✅ |
+| booking_days 约束 | 超过预约天数范围自动灰掉 | ✅ |
+| extra_work_dates | 强制工作日覆盖周休 | ✅ |
 | 单元测试 | 10 个测试覆盖 | ✅ |
 
 ### 模块 3：订单提交 API ✅
@@ -39,14 +41,15 @@
 | 重复手机号检测 | 同手机号同日期拒绝 | ✅ |
 | 并发压测 | 10 并发，零超卖 ✅ | ✅ |
 | 单元测试 | 7 个测试覆盖 | ✅ |
-| `PATCH /api/order/.../cancel` | 取消释放名额 | ✅ |
+| `PATCH /api/admin/orders/:id/status` | 状态流转 + 取消释放名额 | ✅ |
 
-### 模块 4：微信登录 ⚪
+### 模块 4：微信登录 ✅
 
 | 任务 | 说明 | 状态 |
 |------|------|:--:|
-| `POST /api/wechat/login` | code → openid → session_key | ⚪ 代码已写，待真机联调 |
-| users 表创建/查询 | openid 自动建档 | ⚪ 同上 |
+| `POST /api/wechat/login` | code → openid → session_key | ✅ |
+| users 表创建/查询 | openid 自动建档 | ✅ |
+| 小程序静默登录 | `uni.login` → API → Storage | ✅ |
 
 ### 模块 5：管理员鉴权 ✅
 

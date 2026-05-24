@@ -134,3 +134,21 @@ _项目初始化阶段较顺利，无重大错误记录。_
 **日期：** 2026-05-24
 **错误描述：** 旧进程占 5173，新 admin 换到 5174
 **修正：** 通知用户新端口，后续加上 `--strictPort` kill old
+
+---
+
+### M015 · 管理端日期筛选用本地时区导致查询为空
+
+**日期：** 2026-05-24
+**错误描述：** `listOrders` 中 `new Date(query.dateFrom)` 在 UTC+8 产生偏移，日期范围漏掉数据（五月订单查询返回 0）
+**根因：** JS `new Date('2026-05-01')` = 本地时间 5 月 1 日 00:00，在 UTC+8 变成 4 月 30 日 16:00
+**修正：** `new Date(query.dateFrom + 'T00:00:00.000Z')` + `dateTo + 'T23:59:59.999Z'`
+
+---
+
+### M016 · MySQL INSERT IGNORE 产生 `0000-00-00` 崩 Prisma
+
+**日期：** 2026-05-24
+**错误描述：** 手动 `INSERT IGNORE INTO config` 无 `updated_at`，MySQL 填入零值日期，Prisma 读取报 "Value out of range"
+**根因：** Prisma 不支持 `0000-00-00` 日期
+**修正：** 删除坏行，统一使用 Service 层 `upsert`
