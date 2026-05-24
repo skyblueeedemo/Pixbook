@@ -107,8 +107,8 @@ const editRestDay = ref(false);
 const editOrders = ref<{ orderNo: string; customerName: string; status: number; photoCount: number }[]>([]);
 const saving = ref(false);
 
-const statusMap: Record<number, string> = { 0: 'warning', 1: 'primary', 2: '', 3: 'success', 4: 'info' };
-const labelMap: Record<number, string> = { 0: '待确认', 1: '修图中', 2: '待交付', 3: '已完成', 4: '已取消' };
+const statusMap: Record<number, string> = { 0: 'warning', 1: '', 2: 'primary', 3: '', 4: 'success', 5: 'info' };
+const labelMap: Record<number, string> = { 0: '待确认', 1: '已确认', 2: '修图中', 3: '待交付', 4: '已完成', 5: '已取消' };
 function statusTag(s: number) { return statusMap[s] ?? 'info'; }
 function statusLabel(s: number) { return labelMap[s] ?? ''; }
 

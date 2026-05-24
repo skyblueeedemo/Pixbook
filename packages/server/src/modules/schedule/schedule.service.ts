@@ -52,7 +52,7 @@ export class ScheduleService {
     ]);
 
     const scheduleMap = new Map(schedules.map((s) => [dayjs(s.date).format('YYYY-MM-DD'), s]));
-    const nonCancelStatuses = [0, 1, 2, 3]; // all except '已取消' (4)
+    const nonCancelStatuses = [0, 1, 2, 3, 4]; // all except '已取消' (5)
 
     const result: DayStatus[] = [];
 

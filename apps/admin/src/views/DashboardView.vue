@@ -55,19 +55,29 @@ const cards = reactive([
 const recentOrders = ref<Order[]>([]);
 const recentLoading = ref(false);
 
-const stags: Record<number, string> = { 0: 'warning', 1: 'primary', 2: '', 3: 'success', 4: 'info' };
+const stags: Record<number, string> = { 0: 'warning', 1: '', 2: 'primary', 3: '', 4: 'success', 5: 'info' };
 function st(s: number) { return stags[s] ?? 'info'; }
 function fmt(d: string) { return (d ?? '').slice(0, 10); }
 
 async function loadStats() {
   try {
-    const res = await api.get('/admin/orders', { params: { page: 1, pageSize: 5 } });
-    recentOrders.value = res.data.data.list;
-    cards[3].value = String(res.data.data.total);
+    const today = new Date().toISOString().slice(0, 10);
+    const thisMonth = today.slice(0, 7);
 
-    // Count pending
-    const pending = await api.get('/admin/orders', { params: { status: 0, page: 1, pageSize: 1 } });
-    cards[2].value = String(pending.data.data.total);
+    // Fetch all stats in parallel
+    const [recent, pending, todayOrders, monthOrders, total] = await Promise.all([
+      api.get('/admin/orders', { params: { page: 1, pageSize: 5 } }),
+      api.get('/admin/orders', { params: { status: 0, page: 1, pageSize: 1 } }),
+      api.get('/admin/orders', { params: { dateFrom: today, dateTo: today, page: 1, pageSize: 1 } }),
+      api.get('/admin/orders', { params: { dateFrom: `${thisMonth}-01`, dateTo: today, page: 1, pageSize: 1 } }),
+      api.get('/admin/orders', { params: { page: 1, pageSize: 1 } }),
+    ]);
+
+    recentOrders.value = recent.data.data.list;
+    cards[0].value = String(todayOrders.data.data.total);  // 今日预约
+    cards[1].value = String(monthOrders.data.data.total);   // 本月订单
+    cards[2].value = String(pending.data.data.total);       // 待处理
+    cards[3].value = String(total.data.data.total);         // 总订单
   } catch { /* silent */ }
 }
 

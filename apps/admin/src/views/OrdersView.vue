@@ -7,10 +7,11 @@
       <div class="of">
         <el-select v-model="filters.status" placeholder="全部状态" clearable style="width:140px" @change="fetchOrders">
           <el-option label="待确认" :value="0" />
-          <el-option label="修图中" :value="1" />
-          <el-option label="待交付" :value="2" />
-          <el-option label="已完成" :value="3" />
-          <el-option label="已取消" :value="4" />
+          <el-option label="已确认" :value="1" />
+          <el-option label="修图中" :value="2" />
+          <el-option label="待交付" :value="3" />
+          <el-option label="已完成" :value="4" />
+          <el-option label="已取消" :value="5" />
         </el-select>
 
         <el-input v-model="filters.keyword" placeholder="搜索姓名/手机号/订单号" clearable style="width:240px" @clear="fetchOrders" @keyup.enter="fetchOrders" />
@@ -123,15 +124,16 @@ const filters = reactive({
   date: null as [string, string] | null,
 });
 
-const statusTags: Record<number, string> = { 0: 'warning', 1: 'primary', 2: '', 3: 'success', 4: 'info' };
+const statusTags: Record<number, string> = { 0: 'warning', 1: '', 2: 'primary', 3: '', 4: 'success', 5: 'info' };
 function statusTag(s: number) { return statusTags[s] ?? 'info'; }
 
 function fmt(d: string) { return (d ?? '').slice(0, 10); }
 
 const nextStatusMap: Record<number, { value: number; label: string; type: any }[]> = {
-  0: [{ value: 1, label: '→ 修图中', type: 'primary' }, { value: 4, label: '取消订单', type: 'danger' }],
-  1: [{ value: 2, label: '→ 待交付', type: 'success' }, { value: 4, label: '取消订单', type: 'danger' }],
-  2: [{ value: 3, label: '→ 已完成', type: 'success' }],
+  0: [{ value: 1, label: '→ 已确认', type: '' }, { value: 5, label: '取消订单', type: 'danger' }],
+  1: [{ value: 2, label: '→ 修图中', type: 'primary' }, { value: 5, label: '取消订单', type: 'danger' }],
+  2: [{ value: 3, label: '→ 待交付', type: 'success' }, { value: 5, label: '取消订单', type: 'danger' }],
+  3: [{ value: 4, label: '→ 已完成', type: 'success' }],
 };
 function nextStatuses(s: number) { return nextStatusMap[s] ?? []; }
 
@@ -158,7 +160,7 @@ function openDetail(row: Order) {
 }
 
 async function changeStatus(orderId: string, newStatus: number) {
-  const label = { 1: '修图中', 2: '待交付', 3: '已完成', 4: '取消' }[newStatus] ?? '';
+  const label = { 1: '已确认', 2: '修图中', 3: '待交付', 4: '已完成', 5: '取消' }[newStatus] ?? '';
   try {
     await ElMessageBox.confirm(`确认将订单状态改为「${label}」？`, '确认操作', { type: 'warning' });
   } catch { return; }

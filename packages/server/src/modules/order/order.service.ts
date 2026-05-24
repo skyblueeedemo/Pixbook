@@ -8,18 +8,20 @@ import { CreateOrderDto, AdminOrderQueryDto } from './order.dto';
  */
 export const OrderStatus = {
   PENDING: 0,      // 待确认
-  PROCESSING: 1,    // 修图中
-  DELIVERING: 2,    // 待交付
-  COMPLETED: 3,     // 已完成
-  CANCELLED: 4,     // 已取消
+  CONFIRMED: 1,    // 已确认
+  PROCESSING: 2,    // 修图中
+  DELIVERING: 3,    // 待交付
+  COMPLETED: 4,     // 已完成
+  CANCELLED: 5,     // 已取消
 } as const;
 
 export const OrderStatusLabel: Record<number, string> = {
   0: '待确认',
-  1: '修图中',
-  2: '待交付',
-  3: '已完成',
-  4: '已取消',
+  1: '已确认',
+  2: '修图中',
+  3: '待交付',
+  4: '已完成',
+  5: '已取消',
 };
 
 @Injectable()

@@ -60,7 +60,7 @@ export class QueryOrderDto {
 export class UpdateOrderStatusDto {
   @IsInt()
   @Min(0)
-  @Max(4)
+  @Max(5)
   status: number;
 }
 
@@ -68,7 +68,7 @@ export class AdminOrderQueryDto {
   @IsOptional()
   @IsInt()
   @Min(0)
-  @Max(4)
+  @Max(5)
   status?: number;
 
   @IsOptional()
