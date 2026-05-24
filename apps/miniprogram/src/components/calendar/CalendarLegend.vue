@@ -1,49 +1,31 @@
 <template>
   <view class="legend">
-    <view class="item">
-      <view class="dot dc-avail"></view>
-      <text>可预约</text>
-    </view>
-    <view class="item">
-      <view class="dot dc-hot"></view>
-      <text>即将约满</text>
-    </view>
-    <view class="item">
-      <view class="dot dc-full"></view>
-      <text>已满</text>
-    </view>
-    <view class="item">
-      <view class="dot dc-off"></view>
-      <text>不可预约</text>
-    </view>
+    <view class="item"><view class="dot" style="background:#EAF3DE"></view>可约</view>
+    <view class="item"><view class="dot" style="background:#FAEEDA"></view>将满</view>
+    <view class="item"><view class="dot" style="background:#FCEBEB"></view>已满</view>
+    <view class="item"><view class="dot" style="background:#F2F2F7"></view>休息</view>
   </view>
 </template>
 
-<style scoped>
+<style>
 .legend {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 20rpx;
-  padding-top: 16rpx;
-  border-top: 1rpx solid #eee;
-  font-size: 22rpx;
-  color: #888;
+  text-align: center;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
 }
 .item {
-  display: flex;
-  align-items: center;
-}
-.item text {
-  margin-left: 8rpx;
+  display: inline-block;
+  margin: 0 8px;
+  font-size: 11px;
+  color: #888;
 }
 .dot {
-  width: 20rpx;
-  height: 20rpx;
-  border-radius: 4rpx;
-  flex-shrink: 0;
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 3px;
+  vertical-align: middle;
 }
-.dot.dc-avail { background: #EAF3DE; }
-.dot.dc-hot { background: #FAEEDA; }
-.dot.dc-full { background: #FCEBEB; }
-.dot.dc-off { background: #F2F2F7; }
 </style>
