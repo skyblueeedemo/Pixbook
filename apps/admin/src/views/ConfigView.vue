@@ -78,10 +78,7 @@
           <el-form-item label="字段名称">
             <el-input v-model="fieldForm.label" placeholder="如：修图档位" maxlength="20" />
           </el-form-item>
-          <el-form-item label="字段标识">
-            <el-input v-model="fieldForm.key" placeholder="如：retouch_tier（英文+下划线）" maxlength="32" :disabled="editingIndex >= 0" />
-            <span style="color:#999;font-size:11px">保存后不可修改</span>
-          </el-form-item>
+
           <el-form-item label="字段类型">
             <el-select v-model="fieldForm.type" style="width:100%">
               <el-option label="单选下拉" value="select" />
@@ -158,7 +155,7 @@ function openFieldDialog(field?: BookingFormField, idx?: number) {
     fieldForm.required = field.required;
     fieldForm.options = [...field.options];
   } else {
-    fieldForm.key = '';
+    fieldForm.key = 'f_' + Math.random().toString(36).slice(2, 8);
     fieldForm.label = '';
     fieldForm.type = 'select';
     fieldForm.required = false;
@@ -168,7 +165,7 @@ function openFieldDialog(field?: BookingFormField, idx?: number) {
 }
 
 function confirmField() {
-  if (!fieldForm.key || !fieldForm.label) { ElMessage.warning('请填写字段名称和标识'); return; }
+  if (!fieldForm.label) { ElMessage.warning('请填写字段名称'); return; }
   const options = fieldForm.type !== 'text' ? fieldForm.options.filter((o) => o.trim()) : [];
   const entry: BookingFormField = { ...fieldForm, options };
   if (editingIndex.value >= 0) {

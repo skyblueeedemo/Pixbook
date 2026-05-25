@@ -41,14 +41,6 @@
       <view v-if="errors.requirements" class="fd-err">{{ errors.requirements }}</view>
     </view>
 
-    <!-- Notes -->
-    <view class="fd">
-      <view class="fd-lb">附加说明（选填）</view>
-      <view class="fd-ib">
-        <textarea v-model="form.additionalNotes" class="fd-ta" placeholder="例：交付格式要求、参考图说明等" maxlength="500" />
-      </view>
-    </view>
-
     <!-- Dynamic custom fields -->
     <template v-if="customFields.length">
       <view class="fd" v-for="f in customFields" :key="f.key">
@@ -117,12 +109,9 @@ const customValues = reactive<Record<string, unknown>>({});
 const fieldErrors = reactive<Record<string, string>>({});
 
 onMounted(async () => {
-  console.log('[BookingForm] mounted, fetching form fields...');
   try {
     const res = await api.get<{ code: number; data: FieldDef[] }>('/config/booking-form');
-    console.log('[BookingForm] got fields:', JSON.stringify(res));
     customFields.value = res.data || [];
-    // Init default values
     customFields.value.forEach((f) => {
       if (f.type === 'multi_select') {
         customValues[f.key] = [];
@@ -130,9 +119,7 @@ onMounted(async () => {
         customValues[f.key] = '';
       }
     });
-  } catch (e) {
-    console.error('[BookingForm] fetch fields failed:', e);
-  }
+  } catch { /* no custom fields configured */ }
 });
 
 function selectIndex(key: string) {

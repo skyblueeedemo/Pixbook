@@ -71,7 +71,7 @@
             <el-descriptions-item label="修图需求">{{ detail.requirements }}</el-descriptions-item>
             <el-descriptions-item v-if="detail.additionalNotes" label="附加说明">{{ detail.additionalNotes }}</el-descriptions-item>
             <template v-if="detail.customFields && Object.keys(detail.customFields).length">
-              <el-descriptions-item v-for="(v, k) in detail.customFields" :key="k" :label="String(k)">
+              <el-descriptions-item v-for="(v, k) in detail.customFields" :key="k" :label="fieldLabel(String(k))">
                 {{ Array.isArray(v) ? v.join('、') : String(v ?? '') }}
               </el-descriptions-item>
             </template>
@@ -127,6 +127,9 @@ const total = ref(0);
 const page = ref(1);
 const drawer = ref(false);
 const detail = ref<Order | null>(null);
+const fieldLabels = ref<Record<string, string>>({});
+
+function fieldLabel(key: string) { return fieldLabels.value[key] || key; }
 
 const filters = reactive({
   status: null as number | null,
@@ -186,7 +189,17 @@ async function changeStatus(orderId: string, newStatus: number) {
   }
 }
 
-onMounted(() => fetchOrders());
+async function fetchLabels() {
+  try {
+    const res = await api.get('/admin/config');
+    const fields = res.data.data?.bookingFormFields ?? [];
+    const map: Record<string, string> = {};
+    fields.forEach((f: any) => { map[f.key] = f.label; });
+    fieldLabels.value = map;
+  } catch { /* ignore */ }
+}
+
+onMounted(() => { fetchOrders(); fetchLabels(); });
 </script>
 
 <style>
