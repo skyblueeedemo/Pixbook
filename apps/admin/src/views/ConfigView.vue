@@ -93,7 +93,7 @@
             <el-switch v-model="fieldForm.required" />
           </el-form-item>
           <el-form-item v-if="fieldForm.type !== 'text'" label="选项列表">
-            <div v-for="(opt, oi) in fieldForm.options" :key="oi" style="display:flex;gap:8px;margin-bottom:6px">
+            <div v-for="(_opt, oi) in fieldForm.options" :key="oi" style="display:flex;gap:8px;margin-bottom:6px">
               <el-input v-model="fieldForm.options[oi]" placeholder="选项值" size="small" />
               <el-button size="small" type="danger" @click="fieldForm.options.splice(oi,1)" :icon="'Delete'" circle />
             </div>
