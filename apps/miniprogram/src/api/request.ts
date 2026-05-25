@@ -16,7 +16,7 @@ type RequestOptions = UniApp.RequestOptions;
 const DEV_URL = 'http://192.168.31.191:3000/api';
 const PROD_URL = 'http://118.31.50.87/api'; // ← 上线后换成 HTTPS 域名
 
-const IS_PROD = false; // ← 上线前改为 true
+const IS_PROD = true; // ← 开发用 false（局域网 IP），部署服务器用 true
 const BASE_URL = IS_PROD ? PROD_URL : DEV_URL;
 
 function request<T = unknown>(options: RequestOptions): Promise<T> {
