@@ -52,10 +52,10 @@ export class OrderService {
       return { code: 1005, message: '重复请求', data: { orderId: existing.orderNo } };
     }
 
-    // ── 2. Check duplicate (same phone + same date) ────
+    // ── 2. Check duplicate (same contact + same date) ──
     const dup = await this.prisma.order.findFirst({
       where: {
-        customerPhone: dto.customerPhone,
+        contactValue: dto.contactValue,
         scheduleDate: new Date(dto.scheduleDate),
         status: { not: OrderStatus.CANCELLED },
       },
@@ -95,7 +95,9 @@ export class OrderService {
           data: {
             orderNo,
             customerName: dto.customerName,
-            customerPhone: dto.customerPhone,
+            customerPhone: dto.customerPhone ?? '',
+            contactMethod: dto.contactMethod,
+            contactValue: dto.contactValue,
             scheduleDate: new Date(dto.scheduleDate),
             photoCount: dto.photoCount,
             requirements: dto.requirements,
@@ -141,10 +143,10 @@ export class OrderService {
     );
   }
 
-  /** Query order by name + (phone | orderId) */
-  async query(customerName: string, phone?: string, orderId?: string) {
-    if (!phone && !orderId) {
-      throw new HttpException({ code: 1004, message: '请提供手机号或订单号' }, 400);
+  /** Query order by name + (phone | contactValue | orderId) */
+  async query(customerName: string, phone?: string, contactValue?: string, orderId?: string) {
+    if (!phone && !contactValue && !orderId) {
+      throw new HttpException({ code: 1004, message: '请提供手机号、联系方式或订单号' }, 400);
     }
 
     const where: any = { customerName };
@@ -154,6 +156,9 @@ export class OrderService {
     }
     if (phone) {
       where.customerPhone = phone;
+    }
+    if (contactValue) {
+      where.contactValue = contactValue;
     }
 
     const order = await this.prisma.order.findFirst({
@@ -170,6 +175,9 @@ export class OrderService {
       data: {
         orderId: order.orderNo,
         scheduleDate: order.scheduleDate,
+        customerPhone: order.customerPhone,
+        contactMethod: order.contactMethod,
+        contactValue: order.contactValue,
         photoCount: order.photoCount,
         requirements: order.requirements,
         additionalNotes: order.additionalNotes,
@@ -223,6 +231,7 @@ export class OrderService {
       where.OR = [
         { customerName: { contains: query.keyword } },
         { customerPhone: { contains: query.keyword } },
+        { contactValue: { contains: query.keyword } },
         { orderNo: { contains: query.keyword } },
       ];
     }
@@ -249,6 +258,8 @@ export class OrderService {
           scheduleDate: o.scheduleDate,
           customerName: o.customerName,
           customerPhone: o.customerPhone,
+          contactMethod: o.contactMethod,
+          contactValue: o.contactValue,
           photoCount: o.photoCount,
           requirements: o.requirements,
           additionalNotes: o.additionalNotes,

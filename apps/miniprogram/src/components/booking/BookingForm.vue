@@ -11,14 +11,30 @@
       <view v-if="errors.customerName" class="fd-err">{{ errors.customerName }}</view>
     </view>
 
-    <!-- Phone -->
+    <!-- Contact Method -->
     <view class="fd">
-      <view class="fd-lb">手机号 *</view>
+      <view class="fd-lb">联系方式 *</view>
+      <picker :range="contactMethods" :value="contactMethodIndex" @change="onContactMethodChange">
+        <view class="fd-pick">{{ form.contactMethod || '请选择' }}</view>
+      </picker>
+      <view v-if="errors.contactMethod" class="fd-err">{{ errors.contactMethod }}</view>
+    </view>
+
+    <!-- Contact Value -->
+    <view class="fd">
+      <view class="fd-lb">联系方式号码 *</view>
       <view class="fd-ib">
-        <input v-model="form.customerPhone" class="fd-ip" type="number" maxlength="11" placeholder="请输入手机号" />
+        <input v-model="form.contactValue" class="fd-ip" placeholder="微信号/QQ号" maxlength="64" />
       </view>
-      <view class="fd-hint">用于预约确认，不会公开</view>
-      <view v-if="errors.customerPhone" class="fd-err">{{ errors.customerPhone }}</view>
+      <view v-if="errors.contactValue" class="fd-err">{{ errors.contactValue }}</view>
+    </view>
+
+    <!-- Phone (optional) -->
+    <view class="fd">
+      <view class="fd-lb">手机号（选填）</view>
+      <view class="fd-ib">
+        <input v-model="form.customerPhone" class="fd-ip" type="number" maxlength="11" placeholder="选填，用于短信提醒" />
+      </view>
     </view>
 
     <!-- Photo Count -->
@@ -41,8 +57,9 @@
       <view v-if="errors.requirements" class="fd-err">{{ errors.requirements }}</view>
     </view>
 
-    <!-- Dynamic custom fields -->
+    <!-- Custom fields section -->
     <template v-if="customFields.length">
+      <view class="fm-sec">修图偏好</view>
       <view class="fd" v-for="f in customFields" :key="f.key">
         <view class="fd-lb">{{ f.label }} <text v-if="f.required" style="color:#e74c3c">*</text></view>
 
@@ -83,7 +100,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted } from 'vue';
+import { reactive, ref, computed, onMounted } from 'vue';
 import { useBooking } from '@/composables/useBooking';
 import type { DayStatus } from '@/composables/useCalendar';
 import { api } from '@/api';
@@ -101,8 +118,14 @@ const emit = defineEmits<{ success: [result: { orderId: string; photoCount: numb
 const { submitting, submit } = useBooking();
 const submitError = ref<string | null>(null);
 
-const form = reactive({ customerName: '', customerPhone: '', photoCount: 10, requirements: '', additionalNotes: '' });
-const errors = reactive({ customerName: '', customerPhone: '', photoCount: '', requirements: '' });
+const contactMethods = ['微信', 'QQ'];
+const form = reactive({ customerName: '', contactMethod: '', contactValue: '', customerPhone: '', photoCount: 10, requirements: '', additionalNotes: '' });
+const errors = reactive({ customerName: '', contactMethod: '', contactValue: '', photoCount: '', requirements: '' });
+
+const contactMethodIndex = computed(() => Math.max(0, contactMethods.indexOf(form.contactMethod)));
+function onContactMethodChange(e: any) {
+  form.contactMethod = contactMethods[e.detail.value];
+}
 
 const customFields = ref<FieldDef[]>([]);
 const customValues = reactive<Record<string, unknown>>({});
@@ -143,9 +166,11 @@ function onMultiChange(key: string, values: string[]) {
 
 function validate(): boolean {
   let ok = true;
-  errors.customerName = errors.customerPhone = errors.photoCount = errors.requirements = '';
+  errors.customerName = errors.contactMethod = errors.contactValue = errors.photoCount = errors.requirements = '';
   if (!form.customerName || form.customerName.length < 2 || form.customerName.length > 10) { errors.customerName = '请输入2-10个字姓名'; ok = false; }
-  if (!/^1\d{10}$/.test(form.customerPhone)) { errors.customerPhone = '请输入有效手机号'; ok = false; }
+  if (!form.contactMethod) { errors.contactMethod = '请选择联系方式'; ok = false; }
+  if (!form.contactValue || form.contactValue.length < 1) { errors.contactValue = '请填写微信号/QQ号'; ok = false; }
+  if (form.customerPhone && !/^1\d{10}$/.test(form.customerPhone)) { errors.customerPhone = '手机号格式不正确'; ok = false; }
   if (!form.photoCount || form.photoCount < 1 || form.photoCount > 50) { errors.photoCount = '张数需在1-50之间'; ok = false; }
   if (!form.requirements || form.requirements.length < 10) { errors.requirements = '请至少填写10个字描述需求'; ok = false; }
 
@@ -174,7 +199,9 @@ async function handleSubmit() {
     });
 
     const res = await submit({
-      scheduleDate: props.date.date, customerName: form.customerName, customerPhone: form.customerPhone,
+      scheduleDate: props.date.date, customerName: form.customerName,
+      customerPhone: form.customerPhone || undefined,
+      contactMethod: form.contactMethod, contactValue: form.contactValue,
       photoCount: form.photoCount, requirements: form.requirements, additionalNotes: form.additionalNotes || undefined,
       customFields: cf,
       expectedVersion: props.date.version,
@@ -204,4 +231,5 @@ async function handleSubmit() {
 .fd-disc { text-align: center; font-size: 11px; color: #bbb; margin-top: 10px; }
 .fd-pick { width: 100%; height: 44px; line-height: 44px; font-size: 14px; color: #333; border: 1px solid #ddd; border-radius: 6px; padding: 0 12px; box-sizing: border-box; background: #fff; }
 .fd-chk { display: block; font-size: 14px; line-height: 36px; }
+.fm-sec { font-size: 14px; font-weight: 600; color: #333; margin: 20px 0 10px; padding-left: 10px; border-left: 3px solid #409eff; }
 </style>

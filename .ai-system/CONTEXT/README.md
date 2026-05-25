@@ -14,3 +14,11 @@
 - [开发实施文档 (Dev Spec)](../dev-rpd-md/修图约-Pixbook_Dev_V1.0_小程序版.md)
 - [客户端原型 HTML](../../dev-rpd-md/app_prototype_client_screens.html)
 - [管理端原型 HTML](../../dev-rpd-md/app_prototype_admin_screens.html)
+
+## 当前版本
+
+**V1.0.1 伪上线** — Bug 修复 + 自定义预约表单 + 部署固化 + UI 优化
+
+- 后端：NestJS / Prisma / MySQL / Redis / PM2
+- 管理后台：Vue 3 / Element Plus / Vite / Nginx
+- 小程序：uni-app / Vue 3 / WeChat 原生组件

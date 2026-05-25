@@ -65,7 +65,8 @@
           <el-descriptions :column="1" border label-width="100px">
             <el-descriptions-item label="订单号">{{ detail.orderId }}</el-descriptions-item>
             <el-descriptions-item label="客户姓名">{{ detail.customerName }}</el-descriptions-item>
-            <el-descriptions-item label="手机号">{{ maskPhone(detail.customerPhone) }}</el-descriptions-item>
+            <el-descriptions-item label="联系方式">{{ detail.contactMethod }}：{{ detail.contactValue }}</el-descriptions-item>
+            <el-descriptions-item v-if="detail.customerPhone" label="手机号">{{ maskPhone(detail.customerPhone || '') }}</el-descriptions-item>
             <el-descriptions-item label="预约日期">{{ fmt(detail.scheduleDate) }}</el-descriptions-item>
             <el-descriptions-item label="修图张数">{{ detail.photoCount }}</el-descriptions-item>
             <el-descriptions-item label="修图需求">{{ detail.requirements }}</el-descriptions-item>
@@ -111,7 +112,9 @@ interface Order {
   orderId: string;
   scheduleDate: string;
   customerName: string;
-  customerPhone: string;
+  customerPhone?: string;
+  contactMethod?: string;
+  contactValue?: string;
   photoCount: number;
   requirements: string;
   additionalNotes?: string;

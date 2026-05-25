@@ -24,25 +24,35 @@ Phase 5 ████████████████████ ✅ V1.0.1 
 - 系统配置保存失效（snake_case / camelCase 映射）
 - 小程序缓存 + 下拉刷新
 - PM2 .env 加载（dotenv 预加载）
+- 订单详情字段显示英文 key → 中文标签映射
 
 ### 新功能
-- 自定义预约表单字段（精修档位 / 附加项目 / 角色 / 联系方式）
-- 管理后台字段配置 UI
-- 小程序表单动态渲染
-- 订单详情展示自定义字段
+- 自定义预约表单字段（修图档位 / 附加项目 / 角色）
+- 联系方式升为硬字段（contactMethod + contactValue），手机号改可选
+- 管理后台字段配置 UI（字段标识自动生成）
+- 小程序表单动态渲染 + 表单分组
+- 小程序首页引导页 + 成功页美化 + 日历动效
+- 订单详情展示自定义字段 + 联系方式
 
 ### 部署固化
 - `ecosystem.config.js` — PM2 配置入库
 - `deploy.sh` — 一键部署脚本
-- `.env.example` — 生产环境注释
+- `setup-env.sh` — 环境检测安装脚本
+- README 三场景部署（初次 / 更新 / 重启）
+
+### UI 优化
+- 日历选中动效（缩放 + 阴影）
+- 成功页（渐变背景 + 圆形✓ + 卡片信息）
+- 翻页按钮文字箭头（← →）
+- 底部 tab 按需注入 + 图标展位
 
 ### 代码
 
 | 端 | 改动 |
 |----|------|
-| 📱 小程序 | BookingForm 动态渲染 + 下拉刷新 + BASE_URL 环境切换 |
-| 🖥️ 管理后台 | ConfigView 字段配置 + OrdersView 自定义字段展示 |
-| ⚙️ 后端 | Order.customFields JSON + ConfigController key 映射 + ConfigPublicController |
+| 📱 小程序 | BookingForm（联系方式硬字段 + 表单重排）+ HomePage + 下拉刷新 + 按需注入 |
+| 🖥️ 管理后台 | ConfigView（字段标识自动生成）+ OrdersView（联系方式 + 字段标签映射） |
+| ⚙️ 后端 | Order.contactMethod/Value + customerPhone 可选 + ConfigPublicController |
 
 ---
 

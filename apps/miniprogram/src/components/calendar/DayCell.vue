@@ -51,6 +51,10 @@ function onTap() {
   border-radius: 4px;
   margin: 1px 0.35%;
   padding-top: 8px;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.day-cell:active {
+  transform: scale(0.92);
 }
 .day-num {
   font-size: 15px;
@@ -80,5 +84,5 @@ function onTap() {
 .dc-off .day-label { color: #C7C7CC; }
 
 .dc-today { outline: 2px solid #378ADD; }
-.dc-sel { outline: 3px solid #1D9E75; }
+.dc-sel { outline: 3px solid #1D9E75; box-shadow: 0 0 8px rgba(29,158,117,0.4); transform: scale(1.03); }
 </style>

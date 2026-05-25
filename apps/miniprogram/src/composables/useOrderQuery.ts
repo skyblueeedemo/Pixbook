@@ -4,6 +4,9 @@ import { api } from '@/api';
 interface OrderInfo {
   orderId: string;
   scheduleDate: string;
+  customerPhone?: string;
+  contactMethod?: string;
+  contactValue?: string;
   photoCount: number;
   status: number;
   statusLabel: string;
@@ -13,6 +16,7 @@ interface OrderInfo {
 interface QueryParams {
   name: string;
   phone?: string;
+  contactValue?: string;
   orderId?: string;
 }
 
@@ -28,6 +32,7 @@ export function useOrderQuery() {
     try {
       const parts = [`customerName=${encodeURIComponent(params.name)}`];
       if (params.phone) parts.push(`customerPhone=${params.phone}`);
+      if (params.contactValue) parts.push(`contactValue=${encodeURIComponent(params.contactValue)}`);
       if (params.orderId) parts.push(`orderId=${encodeURIComponent(params.orderId)}`);
       const qs = parts.join('&');
 

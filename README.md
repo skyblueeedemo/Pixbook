@@ -1,32 +1,12 @@
 # 修图约 · Pixbook
 
-> 修图服务预约排期系统 — 微信小程序版
+> 修图服务预约排期系统 — 微信小程序版 V1.0.1
+
+<p align="center">
+  <img src="apps/miniprogram/src/static/miniprogram-ico.png" width="120" alt="Pixbook Logo">
+</p>
 
 面向个人修图师和小型工作室的在线预约排期系统，解决人工排期混乱、超额接单、沟通成本高等痛点。
-
----
-
-## 截图
-
-> 截屏后放入 `docs/screenshots/`，替换下方占位图路径。建议尺寸：小程序 390×844，管理后台 1440×900。
-
-### 📱 小程序
-
-| 页面 | 截图 |
-|------|:--:|
-| 首页日历 | ![日历](./docs/screenshots/mp-calendar.png) |
-| 预约表单 | ![表单](./docs/screenshots/mp-form.png) |
-| 提交成功 | ![成功](./docs/screenshots/mp-success.png) |
-| 订单查询 | ![查询](./docs/screenshots/mp-query.png) |
-
-### 🖥️ 管理后台
-
-| 页面 | 截图 |
-|------|:--:|
-| 总览仪表盘 | ![总览](./docs/screenshots/admin-dashboard.png) |
-| 订单管理 | ![订单](./docs/screenshots/admin-orders.png) |
-| 排期管理 | ![排期](./docs/screenshots/admin-schedule.png) |
-| 系统配置 | ![配置](./docs/screenshots/admin-config.png) |
 
 ---
 
@@ -36,19 +16,20 @@
 
 | 页面 | 功能 |
 |------|------|
-| 首页日历 | 月视图 · 5 种状态颜色 · 选日期 · 月份切换 |
-| 预约表单 | 5 字段校验 · 乐观锁防超卖 · 幂等防重复 |
-| 成功页 | 订单号 · 日期 · 张数 · 一键复制 |
-| 查询页 | 姓名 + 手机号 或 姓名 + 订单号 |
+| 首页 | 品牌展示 + 三步引导（选日期→填需求→提交） |
+| 日历 | 月视图 · 5 色状态 · 点击选中 · 下拉刷新 |
+| 表单 | 基础字段 + 自定义字段动态渲染（修图档位/附加项目/角色/联系方式） |
+| 成功页 | 订单信息卡片 · 一键复制订单号 |
+| 查询页 | 姓名+手机号 或 姓名+订单号 |
 
 ### 🖥️ 管理后台
 
 | 页面 | 功能 |
 |------|------|
-| 总览 | 汇总卡片 + 状态卡片（可点击筛选）· 最近订单 |
-| 订单管理 | 表格 · 筛选 · 分页 · 详情抽屉 · 6 种状态流转 |
-| 排期管理 | 月历 · 点击设置名额/休息日 · 当日预约列表 |
-| 系统配置 | 每日上限 · 预约天数 · 周休日 · 保存即时生效 |
+| 总览 | 汇总卡片 + 最近订单 |
+| 订单管理 | 筛选 · 分页 · 详情（含自定义字段）· 6 种状态流转 |
+| 排期管理 | 月历 · 单日名额/休息日 · 当日预约列表 |
+| 系统配置 | 基础参数 + 预约表单字段增删改（select/multi_select/text） |
 
 ### 状态流转
 
@@ -64,10 +45,10 @@
 
 | 层 | 技术 |
 |----|------|
-| 小程序 | uni-app + Vue 3 + TypeScript + 原生 CSS |
+| 小程序 | uni-app + Vue 3 + TypeScript |
 | 管理后台 | Vue 3 + Vite + Element Plus + TypeScript |
 | 后端 | NestJS + Prisma ORM + MySQL 8 + Redis 7 |
-| 部署 | Docker Compose / Nginx + PM2 |
+| 部署 | PM2 + Nginx + Bash 脚本 |
 
 ---
 
@@ -78,113 +59,196 @@ Pixbook/
 ├── apps/
 │   ├── miniprogram/         # uni-app 微信小程序
 │   │   └── src/
-│   │       ├── pages/       # index / success / query
+│   │       ├── pages/       # home / index / success / query
+│   │       ├── components/  # calendar / booking
 │   │       ├── composables/ # useCalendar / useBooking / useAuth / useOrderQuery
-│   │       └── api/         # request.ts 封装
+│   │       └── api/         # request.ts
 │   └── admin/               # Vue 3 管理后台
 │       └── src/
 │           ├── views/       # Dashboard / Orders / Schedule / Config
-│           ├── components/  # AdminLayout
-│           └── api/         # Axios + JWT 拦截器
+│           └── components/  # AdminLayout
 ├── packages/
 │   └── server/              # NestJS 后端
 │       └── src/modules/
 │           ├── schedule/    # 排期日历 API
-│           ├── order/       # 订单提交/查询/管理
+│           ├── order/       # 订单提交/查询/管理 + customFields
 │           ├── wechat/      # 微信静默登录
-│           ├── config/      # 全局配置 CRUD
-│           └── auth/        # JWT 鉴权 Guard
-├── docker-compose.yml       # MySQL 8 + Redis 7
+│           ├── config/      # 全局配置 + booking_form_fields
+│           └── auth/        # JWT 鉴权
+├── ecosystem.config.js      # PM2 进程管理
+├── deploy.sh                # 一键部署脚本
+├── setup-env.sh             # 环境检测安装脚本
+├── .env.example             # 环境变量模板
 ├── docs/                    # 部署指南 + 审核清单
-└── .ai-system/              # 项目管理文档（决策/经验/错误/里程碑）
+└── .ai-system/              # 项目管理文档
 ```
 
 ---
 
-## 快速开始
+## 部署
+
+### 快速开始
+
+```bash
+# 1. 克隆代码
+git clone https://github.com/skyblueeedemo/Pixbook.git
+cd Pixbook
+
+# 2. 环境检测（自动识别宝塔 / Ubuntu，缺什么装什么）
+bash setup-env.sh
+
+# 3. 配置环境变量
+cp .env.example packages/server/.env
+vim packages/server/.env
+
+# 4. 初始化数据库
+pnpm --prefix packages/server db:migrate
+pnpm --prefix packages/server db:seed
+
+# 5. 一键部署
+./deploy.sh
+```
+
+---
 
 ### 环境要求
 
-- Node.js 24+
-- pnpm 9+
-- Docker & Docker Compose
+| 组件 | 说明 |
+|------|------|
+| Node.js 24+ | `setup-env.sh` 自动检测 |
+| pnpm 9+ | 脚本自动安装 |
+| PM2 | 脚本自动安装 |
+| MySQL 8 | 宝塔软件商店安装 / `apt install mysql-server` |
+| Redis 7 | 宝塔软件商店安装 / `apt install redis-server` |
+| Nginx | 宝塔软件商店安装 / `apt install nginx` |
 
-### 1. 安装依赖
+> `setup-env.sh` 会自动检测以上组件，已安装的跳过，缺失的给出安装命令。
+> 如果 MySQL/Redis 不想装宿主机，可以用 `docker compose up -d` 替代（项目自带 `docker-compose.yml`）。
+
+---
+
+### 初次部署
+
+clone 后在项目根目录执行：
 
 ```bash
+# 安装 Node 依赖
 pnpm install
+
+# 建库建表 + 种子数据
+pnpm --prefix packages/server db:migrate
+pnpm --prefix packages/server db:seed
+
+# 构建
+pnpm build:server
+pnpm build:admin
+
+# 启动
+pm2 start ecosystem.config.js
+pm2 save
 ```
 
-### 2. 启动数据库
+配置 Nginx（宝塔在「网站」→「添加站点」→ 配置文件）：
 
-```bash
-docker compose up -d
+```nginx
+server {
+    listen 80;
+    server_name 你的域名或IP;
+
+    root /home/admin/Pixbook/apps/admin/dist;
+
+    location /api {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
 ```
 
-### 3. 配置环境变量
+---
+
+### 日常更新
 
 ```bash
-cp packages/server/.env.example packages/server/.env
+git pull && ./deploy.sh
 ```
 
-编辑 `.env`，填入你的微信 AppID / AppSecret。
+`deploy.sh` 自动执行：install → migrate → build → PM2 重启。
 
-### 4. 初始化数据库
+> 服务器访问不了 GitHub？手动拉代码后跑：
+> ```bash
+> pnpm install && pnpm build:server && pnpm build:admin && pm2 restart pixbook-api
+> ```
+
+---
+
+### 服务器重启后
 
 ```bash
-pnpm --filter @pixbook/server db:migrate
-pnpm --filter @pixbook/server db:seed
+pm2 resurrect
 ```
 
-### 5. 启动开发服务
+如果 PM2 没保存过状态：
 
 ```bash
-# 后端 API (http://localhost:3000)
-pnpm dev:server
+pm2 start ecosystem.config.js
+pm2 save
+```
 
-# 管理后台 (http://localhost:5173)
-pnpm dev:admin
+Nginx / MySQL / Redis 在宝塔中默认开机自启，无需手动操作。
 
-# 小程序（微信开发者工具打开 dist/dev/mp-weixin）
-pnpm dev:mp
+---
+
+## 本地开发
+
+```bash
+pnpm dev:server   # 后端 API → http://localhost:3000
+pnpm dev:admin    # 管理后台 → http://localhost:5173
+pnpm dev:mp       # 小程序 → 微信开发者工具打开 dist/dev/mp-weixin
+```
+
+本地没有 MySQL/Redis？项目自带 `docker-compose.yml`：
+
+```bash
+docker compose up -d   # 启动 MySQL 8 + Redis 7
 ```
 
 ---
 
 ## 测试
 
-### 运行单元测试
+### 单元测试
 
 ```bash
-pnpm --filter @pixbook/server test
+pnpm --prefix packages/server test
 ```
 
-### 运行并发测试
+### 并发测试
 
 ```bash
-pnpm --filter @pixbook/server test:concurrent
+pnpm --prefix packages/server test:concurrent
 ```
 
-### 运行 E2E 全链路测试
+### 全链路测试
 
-1. 手机扫码打开小程序 → 选日期 → 提交预约 → 记下订单号
-2. 管理后台 → 订单管理 → 搜订单号 → 详情 → 流转状态
-3. 小程序 → 查询页 → 输入姓名+订单号 → 确认状态已更新
+1. 小程序 → 首页 → 开始预约 → 选日期 → 填表单 → 提交
+2. 管理后台 → 订单管理 → 查看详情（含自定义字段）→ 流转状态
+3. 小程序 → 查询页 → 确认状态更新
 
 ---
 
-## 部署
+## 小程序审核
 
-详见 [`docs/deployment.md`](docs/deployment.md)。
+详见 [`docs/review-checklist.md`](docs/review-checklist.md)。
 
-简要步骤：
-
-1. 配置生产环境变量（JWT_SECRET、数据库密码等）
-2. `pnpm --filter @pixbook/server build`
-3. `pnpm --filter @pixbook/admin build`
-4. Nginx 反向代理 + SSL
-5. PM2 守护后端进程
-6. 微信公众平台配置合法域名
+上线前检查：
+- [ ] 域名 + SSL 证书（HTTPS）
+- [ ] 微信公众平台配置合法域名
+- [ ] `.env` 修改所有占位符
+- [ ] `request.ts` 中 `IS_PROD = true`
 
 ---
 
@@ -192,22 +256,32 @@ pnpm --filter @pixbook/server test:concurrent
 
 | 文档 | 说明 |
 |------|------|
-| [部署指南](docs/deployment.md) | 生产环境部署步骤 |
-| [审核清单](docs/review-checklist.md) | 小程序提交审核准备 |
-| [产品需求文档 (PRD)](dev-rpd-md/修图约-Pixbook_PRD_V1.0.md) | 原始需求 |
-| [开发实施文档](dev-rpd-md/修图约-Pixbook_Dev_V1.0_小程序版.md) | 技术设计 |
-| [项目状态](.ai-system/project_state.md) | 当前进度 |
-| [决策记录](.ai-system/MEMORY/decisions.md) | 17 条架构决策 |
-| [经验教训](.ai-system/MEMORY/learnings.md) | 12 条踩坑经验 |
-| [错误记录](.ai-system/MEMORY/mistakes.md) | 16 条 Bug 记录 |
-| [里程碑](.ai-system/TASKS/milestone.md) | M0-M4 |
+| [项目状态](.ai-system/project_state.md) | V1.0.1 伪上线 |
+| [里程碑](.ai-system/TASKS/milestone.md) | M0-M5 |
+| [路线图](.ai-system/TASKS/roadmap.md) | 开发时间线 |
+| [阶段计划](.ai-system/STAGES/) | Phase 0-5 |
+| [决策记录](.ai-system/MEMORY/decisions.md) | 20 条架构决策 |
+| [经验教训](.ai-system/MEMORY/learnings.md) | 15 条踩坑经验 |
+| [错误记录](.ai-system/MEMORY/mistakes.md) | 19 条 Bug 记录 |
+| [架构演进](.ai-system/MEMORY/architecture_history.md) | V1.0 → V1.0.1 |
+| [部署指南](docs/deployment.md) | Nginx + HTTPS 详细配置 |
+| [审核清单](docs/review-checklist.md) | 小程序提审准备 |
 
 ---
 
 ## 项目状态
 
-🎉 **MVP v1.0.0 已交付**
+🔵 **V1.0.1 伪上线完成**
+
+### MVP 交付（V1.0.0）
 
 - 17 单元测试 · 11 API 端点 · 10 并发零超卖
-- 4 个 Phase 全部完成
-- 管理后台 + 小程序 + 后端 API 全栈可用
+- Phase 0-4 全部完成 · 管理后台 + 小程序 + 后端 API 全栈可用
+
+### V1.0.1 新增
+
+- Bug 修复：配置保存 / 缓存同步 / .env 加载
+- 自定义预约表单字段（动态渲染 + JSON 存储）
+- PM2 + deploy.sh + setup-env.sh 部署三件套
+- 首页引导页 + 成功页美化 + 日历动效 + 表单分组
+- 待域名 + HTTPS 后正式上线

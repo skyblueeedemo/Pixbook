@@ -28,13 +28,15 @@ model Order {
   id              Int      @id @default(autoincrement())
   orderNo         String   @unique @map("order_no") @db.VarChar(32)
   customerName    String   @map("customer_name") @db.VarChar(20)
-  customerPhone   String   @map("customer_phone") @db.VarChar(11)
+  customerPhone   String?  @map("customer_phone") @db.VarChar(11)
+  contactMethod   String   @map("contact_method") @db.VarChar(20)
+  contactValue    String   @map("contact_value") @db.VarChar(64)
   scheduleDate    DateTime @map("schedule_date") @db.Date
   photoCount      Int      @map("photo_count")
   requirements    String   @db.Text
   additionalNotes String?  @map("additional_notes") @db.Text
   customFields    Json?    @map("custom_fields")
-  status          Int      @default(0) @map("status") // 0=待确认 1=修图中 2=待交付 3=已完成 4=已取消
+  status          Int      @default(0) @map("status") // 0=待确认 1=已确认 2=修图中 3=待交付 4=已完成 5=已取消
   idempotencyKey  String   @unique @map("idempotency_key") @db.VarChar(64)
   userId          Int?     @map("user_id")
   createdAt       DateTime @default(now()) @map("created_at")
@@ -43,7 +45,7 @@ model Order {
   schedule   Schedule @relation(fields: [scheduleDate], references: [date])
   user       User?    @relation(fields: [userId], references: [id])
 
-  @@index([scheduleDate, customerPhone])
+  @@index([scheduleDate])
   @@map("orders")
 }
 

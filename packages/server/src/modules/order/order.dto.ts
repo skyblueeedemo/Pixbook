@@ -17,9 +17,18 @@ export class CreateOrderDto {
   @Length(2, 10, { message: '请输入 2–10 个字的姓名' })
   customerName: string;
 
+  @IsOptional()
   @IsString()
   @Matches(/^1\d{10}$/, { message: '请输入有效的手机号码' })
-  customerPhone: string;
+  customerPhone?: string;
+
+  @IsString()
+  @Length(1, 20, { message: '请填写联系方式' })
+  contactMethod: string;
+
+  @IsString()
+  @Length(1, 64, { message: '请填写联系号码' })
+  contactValue: string;
 
   @IsInt()
   @Min(1, { message: '张数需在 1–50 之间' })
@@ -54,6 +63,10 @@ export class QueryOrderDto {
   @IsString()
   @Matches(/^1\d{10}$/)
   customerPhone?: string;
+
+  @IsOptional()
+  @IsString()
+  contactValue?: string;
 
   @IsOptional()
   @IsString()

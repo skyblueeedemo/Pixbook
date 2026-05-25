@@ -177,3 +177,10 @@ _项目初始化阶段较顺利，无重大错误记录。_
 **错误描述：** 管理后台改 `default_max_slots` 点保存，提示成功但刷新后值没变
 **根因：** 前端发送 `default_max_slots` (snake_case)，Service 期望 `defaultMaxSlots` (camelCase)，TS 类型断言 `as never` 掩盖了问题
 **修正：** Controller 加 `mapSnakeToCamel()` 映射
+
+### M020 · 联系方式藏在 JSON 导致查询不便
+
+**日期：** 2026-05-25
+**错误描述：** 联系方式（微信号/QQ号）放在 `booking_form_fields` 自定义字段中，查询订单需要遍历 JSON，且自定义字段的 key 在管理端和表单端不一致
+**根因：** 过度使用灵活设计，把每个订单都有的核心字段放在了 JSON schema 里
+**修正：** 升为 Order 表硬字段 `contactMethod` + `contactValue`，从自定义字段配置中移除

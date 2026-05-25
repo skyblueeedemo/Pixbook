@@ -5,8 +5,9 @@
 
       <view class="qfm">
         <view class="qib"><input v-model="nameInput" class="qip" placeholder="请输入预约姓名（必填）" maxlength="10" /></view>
-        <view class="qib"><input v-model="phoneInput" class="qip" type="number" maxlength="11" placeholder="手机号（二选一）" /></view>
-        <view class="qib"><input v-model="orderIdInput" class="qip" placeholder="订单号（二选一）" /></view>
+        <view class="qib"><input v-model="contactInput" class="qip" placeholder="微信号/QQ号（可选）" /></view>
+        <view class="qib"><input v-model="phoneInput" class="qip" type="number" maxlength="11" placeholder="手机号（可选）" /></view>
+        <view class="qib"><input v-model="orderIdInput" class="qip" placeholder="订单号（可选）" /></view>
         <button class="qbt" :disabled="loading" @tap="handleQuery">
           {{ loading ? '查询中...' : '查询' }}
         </button>
@@ -16,6 +17,8 @@
 
       <view v-if="order" class="qrs">
         <view class="qrw"><text class="qlb">订单号</text><text class="qvl">{{ order.orderId }}</text></view>
+        <view class="qrw"><text class="qlb">联系方式</text><text class="qvl">{{ order.contactMethod }}：{{ order.contactValue }}</text></view>
+        <view class="qrw" v-if="order.customerPhone"><text class="qlb">手机号</text><text class="qvl">{{ order.customerPhone }}</text></view>
         <view class="qrw"><text class="qlb">预约日期</text><text class="qvl">{{ fmtDate }}</text></view>
         <view class="qrw"><text class="qlb">修图张数</text><text class="qvl">{{ order.photoCount }} 张</text></view>
         <view class="qrw"><text class="qlb">状态</text><text class="qvl qst">{{ order.statusLabel }}</text></view>
@@ -29,6 +32,7 @@ import { ref, computed } from 'vue';
 import { useOrderQuery } from '@/composables/useOrderQuery';
 
 const nameInput = ref('');
+const contactInput = ref('');
 const phoneInput = ref('');
 const orderIdInput = ref('');
 const { order, loading, error, query } = useOrderQuery();
@@ -43,11 +47,11 @@ function handleQuery() {
     error.value = '请填写姓名';
     return;
   }
-  if (!phoneInput.value && !orderIdInput.value) {
-    error.value = '请填写手机号或订单号';
+  if (!contactInput.value && !phoneInput.value && !orderIdInput.value) {
+    error.value = '请填写联系方式、手机号或订单号之一';
     return;
   }
-  query({ name: nameInput.value, phone: phoneInput.value || undefined, orderId: orderIdInput.value || undefined });
+  query({ name: nameInput.value, contactValue: contactInput.value || undefined, phone: phoneInput.value || undefined, orderId: orderIdInput.value || undefined });
 }
 </script>
 

@@ -25,6 +25,8 @@ describe('OrderService', () => {
     scheduleDate: '2026-06-01',
     customerName: '张三',
     customerPhone: '13800000001',
+    contactMethod: '微信',
+    contactValue: 'test_wechat',
     photoCount: 10,
     requirements: '人像精修，保留自然感，磨皮适度处理',
     expectedVersion: 0,

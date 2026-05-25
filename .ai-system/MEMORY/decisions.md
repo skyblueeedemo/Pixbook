@@ -254,3 +254,23 @@
 - 脚本中 `cwd` 参数解决了之前的 .env 路径问题
 
 **替代方案：** 手动 PM2 start + 文档记录 — 容易遗忘参数，每次部署不稳定。
+
+---
+
+### D021 · 联系方式升为硬字段
+
+**决策：** 将"联系方式"和"联系号码"从自定义表单字段中移除，作为 Order 表的独立列（`contactMethod` + `contactValue`）
+
+**理由：**
+- 联系方式是每个订单的核心信息，不应与修图偏好（如档位、角色）混在同一层级
+- 硬字段可索引、可搜索，查询性能优于 JSON 字段遍历
+- 替代原先的"手机号必填"：QQ/微信号作为主要联系方式，手机号改为选填
+- 去重逻辑从 `phone + date` 改为 `contactValue + date`
+
+**关联改动：**
+- Prisma Order 模型新增 `contactMethod` `contactValue`，`customerPhone` 改为可选
+- 小程序表单重排：姓名 → 联系方式 → 联系号码 → 手机号（下移，选填）
+- 查询页增加联系方式搜索
+- 种子数据移除 contact_method/contact_value（已升为硬字段）
+
+**替代方案：** 保持 phone 必填 + customFields 存 QQ/微信 — 但 phone 作为必填项对 QQ/微信用户不友好
