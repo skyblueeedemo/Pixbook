@@ -117,8 +117,10 @@ const customValues = reactive<Record<string, unknown>>({});
 const fieldErrors = reactive<Record<string, string>>({});
 
 onMounted(async () => {
+  console.log('[BookingForm] mounted, fetching form fields...');
   try {
     const res = await api.get<{ code: number; data: FieldDef[] }>('/config/booking-form');
+    console.log('[BookingForm] got fields:', JSON.stringify(res));
     customFields.value = res.data || [];
     // Init default values
     customFields.value.forEach((f) => {
@@ -128,7 +130,9 @@ onMounted(async () => {
         customValues[f.key] = '';
       }
     });
-  } catch { /* fields remain empty */ }
+  } catch (e) {
+    console.error('[BookingForm] fetch fields failed:', e);
+  }
 });
 
 function selectIndex(key: string) {
