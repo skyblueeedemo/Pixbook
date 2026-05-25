@@ -14,6 +14,17 @@
 | 配置修改后小程序不更新 | 客户端缓存 60s + 无主动刷新 | 缓存缩至 30s + 下拉刷新 | ✅ |
 | 排期管理设额度后小程序不同步 | 同上 | 同上 | ✅ |
 | PM2 启动后 .env 不加载 | CWD 不在 packages/server | main.ts 顶部 dotenv 预加载 | ✅ |
+| UI对齐问题 + 翻页箭头 | inline-block 对齐偏差，翻页无视觉提示 | 修复对齐 + 翻页按钮加 ← → 箭头 | ✅ |
+
+## 新功能 · 联系方式硬字段
+
+| 任务 | 说明 | 状态 |
+|------|------|:--:|
+| Order 表新增 contactMethod/contactValue | Prisma migration + DTO 更新 | ✅ |
+| customerPhone 改为可选 | schema 字段 Optional，表单不再强制 | ✅ |
+| 小程序表单重排 | 联系方式提升到姓名下方第一位，手机号下移选填 | ✅ |
+| 查询逻辑适配 | contactValue 替代 phone 参与去重 + 查询 | ✅ |
+| 种子数据清理 | 移除 contact_method/contact_value JSON key | ✅ |
 
 ## 新功能 · 自定义预约表单
 
@@ -21,7 +32,7 @@
 |------|------|:--:|
 | DB 新增 custom_fields JSON 列 | Order 表 Prisma migration | ✅ |
 | 后端 booking_form_fields 配置 | ConfigService 读写 + 公开接口 GET /api/config/booking-form | ✅ |
-| 管理后台字段配置 UI | ConfigView 新增字段增删改 | ✅ |
+| 管理后台字段配置 UI | ConfigView 字段增删改 + 字段标识自动生成（拼音） + 编辑框隐藏 | ✅ |
 | 小程序表单动态渲染 | select/multi_select/text 三类型 + 必填校验 | ✅ |
 | 管理后台订单详情展示 | customFields 格式化展示 | ✅ |
 
