@@ -2,6 +2,7 @@ import { Injectable, HttpException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../../common/redis/redis.service';
 import { CreateOrderDto, AdminOrderQueryDto } from './order.dto';
+import { Prisma } from '@prisma/client';
 
 /**
  * Order status enum — matches PRD §7.3 state flow.
@@ -99,6 +100,7 @@ export class OrderService {
             photoCount: dto.photoCount,
             requirements: dto.requirements,
             additionalNotes: dto.additionalNotes ?? null,
+            customFields: (dto.customFields as Prisma.InputJsonValue) ?? Prisma.JsonNull,
             status: OrderStatus.PENDING,
             idempotencyKey: dto.idempotencyKey,
           },
@@ -169,6 +171,9 @@ export class OrderService {
         orderId: order.orderNo,
         scheduleDate: order.scheduleDate,
         photoCount: order.photoCount,
+        requirements: order.requirements,
+        additionalNotes: order.additionalNotes,
+        customFields: order.customFields,
         status: order.status,
         statusLabel: OrderStatusLabel[order.status],
         createdAt: order.createdAt,
@@ -246,6 +251,8 @@ export class OrderService {
           customerPhone: o.customerPhone,
           photoCount: o.photoCount,
           requirements: o.requirements,
+          additionalNotes: o.additionalNotes,
+          customFields: o.customFields,
           status: o.status,
           statusLabel: OrderStatusLabel[o.status],
           createdAt: o.createdAt,

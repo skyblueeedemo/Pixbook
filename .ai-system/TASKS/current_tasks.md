@@ -1,21 +1,39 @@
 # 当前任务
 
-> 阶段：Phase 4 完成 ✅
-> MVP 全部交付
+> 阶段：Phase 5 — V1.0.1 伪上线 ✅
+> 更新时间：2026-05-25
 
 ---
 
-## ✅ 全部完成
+## ✅ V1.0.1 已完成
 
-- [x] 小程序 3 页完整闭环
-- [x] 管理后台 4 页全部功能
-- [x] 后端 11 API + 17 测试
-- [x] E2E 全链路集成测试通过
-- [x] 手机号脱敏显示
-- [x] 部署文档
-- [x] 小程序审核清单
+### Bug 修复
+- [x] 系统配置保存失效（snake_case → camelCase 映射）
+- [x] 配置变更后小程序缓存不更新（30s + 下拉刷新）
+- [x] PM2 .env 不加载（dotenv main.ts 预加载）
+
+### 新功能 · 自定义预约表单
+- [x] Order 表 custom_fields JSON 列
+- [x] booking_form_fields 配置读写
+- [x] GET /api/config/booking-form 公开接口
+- [x] 管理后台字段配置 UI
+- [x] 小程序表单动态渲染
+- [x] 管理后台订单详情自定义字段展示
+
+### 部署固化
+- [x] ecosystem.config.js
+- [x] deploy.sh
+- [x] .env.example 更新
+- [x] request.ts IS_PROD 开关
 
 ---
+
+## 🔴 上线前
+
+- [ ] 域名 + SSL 证书
+- [ ] Nginx HTTPS 配置
+- [ ] 微信公众平台合法域名
+- [ ] 小程序提交审核
 
 ## 🔮 V1.1 后续迭代
 

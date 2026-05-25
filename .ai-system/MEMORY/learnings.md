@@ -135,9 +135,36 @@
 
 ---
 
+## V1.0.1 伪上线
+
+### L013 · NestJS `ConfigModule.forRoot()` 时序问题
+
+**发现：** `ConfigModule.forRoot()` 中的 `dotenv.config()` 在模块初始化阶段执行，但 `auth.service.ts` 中模块级常量 `ADMIN_ACCOUNT` 在文件被 `require` 时就已读取 `process.env`。如果 `.env` 路径不正确（PM2 CWD 不匹配），管理员密码回退到代码默认值。
+
+**解决：** 在 `main.ts` 顶部最早期显式调用 `dotenv.config()`，确保在任何业务模块加载前 `process.env` 已就绪。
+
+**教训：** `.env` 加载应是最早执行的代码，不依赖框架模块的初始化顺序。
+
+### L014 · 小程序真机强制 HTTPS
+
+**发现：** 微信小程序真机预览时，即使勾选「不校验合法域名」，对非本地（非 localhost/127.0.0.1）的 HTTP 请求仍会拦截，报 `request:fail`。
+
+**解决：** 开发阶段用局域网 IP（HTTP）仅限模拟器；真机测试必须走 HTTPS 或 ngrok 隧道。
+
+**教训：** 上了服务器就要配 HTTPS，别无选择。`request:fail` 不是域名白名单问题，是协议问题。
+
+### L015 · snake_case → camelCase 静默失败
+
+**发现：** 前端发送 `default_max_slots` (snake_case)，TypeScript 接口定义 `defaultMaxSlots` (camelCase)。没有 DTO 映射层时，`partial.defaultMaxSlots` 永远是 `undefined`，所有 upsert 静默跳过。API 返回 200 但啥也没改。
+
+**解决：** 在 Controller 层加 `mapSnakeToCamel()` 映射函数，处理 key 名转换 + 类型转换（string→number、逗号分隔→数组）。
+
+**教训：** TypeScript 类型不提供运行时安全网。前后端 key 名不一致是常见坑，要么统一命名规范，要么在边界加映射。
+
+---
+
 ## 待记录
 
-_随着开发推进，在此记录：_
-- 订阅消息推送调试
 - 小程序审核经验
-- 部署上线流程
+- 多租户改造
+

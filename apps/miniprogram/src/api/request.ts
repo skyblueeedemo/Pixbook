@@ -5,8 +5,19 @@
  */
 type RequestOptions = UniApp.RequestOptions;
 
-// 真机预览需用电脑局域网 IP（手机和电脑连同一 WiFi）
-const BASE_URL = 'http://192.168.31.191:3000/api';
+/**
+ * API base URL — switch between dev / production.
+ *
+ * Dev:   局域网 IP（电脑和手机同一 WiFi），或 localhost（模拟器）
+ * Prod:  HTTPS 域名（如 https://api.your-domain.com）
+ *
+ * 上线前改为正式域名，并确保微信公众平台已配置合法域名。
+ */
+const DEV_URL = 'http://192.168.31.191:3000/api';
+const PROD_URL = 'http://118.31.50.87/api'; // ← 上线后换成 HTTPS 域名
+
+const IS_PROD = false; // ← 上线前改为 true
+const BASE_URL = IS_PROD ? PROD_URL : DEV_URL;
 
 function request<T = unknown>(options: RequestOptions): Promise<T> {
   const sessionKey = uni.getStorageSync('session_key');

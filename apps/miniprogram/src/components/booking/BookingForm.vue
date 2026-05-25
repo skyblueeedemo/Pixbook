@@ -13,7 +13,7 @@
 
     <!-- Phone -->
     <view class="fd">
-      <view class="fd-lb">联系方式 *</view>
+      <view class="fd-lb">手机号 *</view>
       <view class="fd-ib">
         <input v-model="form.customerPhone" class="fd-ip" type="number" maxlength="11" placeholder="请输入手机号" />
       </view>
@@ -49,6 +49,38 @@
       </view>
     </view>
 
+    <!-- Dynamic custom fields -->
+    <template v-if="customFields.length">
+      <view class="fd" v-for="f in customFields" :key="f.key">
+        <view class="fd-lb">{{ f.label }} <text v-if="f.required" style="color:#e74c3c">*</text></view>
+
+        <!-- select -->
+        <template v-if="f.type === 'select'">
+          <picker :range="f.options" :value="selectIndex(f.key)" @change="(e: any) => onSelectChange(f.key, f.options[e.detail.value])">
+            <view class="fd-pick">{{ customValues[f.key] || '请选择' + f.label }}</view>
+          </picker>
+        </template>
+
+        <!-- multi_select -->
+        <template v-if="f.type === 'multi_select'">
+          <checkbox-group @change="(e: any) => onMultiChange(f.key, e.detail.value)">
+            <label v-for="o in f.options" :key="o" class="fd-chk">
+              <checkbox :value="o" :checked="multiChecked(f.key, o)" />{{ o }}
+            </label>
+          </checkbox-group>
+        </template>
+
+        <!-- text -->
+        <template v-if="f.type === 'text'">
+          <view class="fd-ib">
+            <input v-model="customValues[f.key]" class="fd-ip" :placeholder="'请输入' + f.label" maxlength="100" />
+          </view>
+        </template>
+
+        <view v-if="fieldErrors[f.key]" class="fd-err">{{ fieldErrors[f.key] }}</view>
+      </view>
+    </template>
+
     <view v-if="submitError" class="fd-ban">{{ submitError }}</view>
 
     <button class="fd-btn" :disabled="submitting" :loading="submitting" @tap="handleSubmit">
@@ -59,9 +91,18 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
 import { useBooking } from '@/composables/useBooking';
 import type { DayStatus } from '@/composables/useCalendar';
+import { api } from '@/api';
+
+interface FieldDef {
+  key: string;
+  label: string;
+  type: 'select' | 'multi_select' | 'text';
+  required: boolean;
+  options: string[];
+}
 
 const props = defineProps<{ date: DayStatus }>();
 const emit = defineEmits<{ success: [result: { orderId: string; photoCount: number }] }>();
@@ -71,6 +112,44 @@ const submitError = ref<string | null>(null);
 const form = reactive({ customerName: '', customerPhone: '', photoCount: 10, requirements: '', additionalNotes: '' });
 const errors = reactive({ customerName: '', customerPhone: '', photoCount: '', requirements: '' });
 
+const customFields = ref<FieldDef[]>([]);
+const customValues = reactive<Record<string, unknown>>({});
+const fieldErrors = reactive<Record<string, string>>({});
+
+onMounted(async () => {
+  try {
+    const res = await api.get<{ code: number; data: FieldDef[] }>('/config/booking-form');
+    customFields.value = res.data || [];
+    // Init default values
+    customFields.value.forEach((f) => {
+      if (f.type === 'multi_select') {
+        customValues[f.key] = [];
+      } else {
+        customValues[f.key] = '';
+      }
+    });
+  } catch { /* fields remain empty */ }
+});
+
+function selectIndex(key: string) {
+  const v = customValues[key] as string;
+  const f = customFields.value.find((x) => x.key === key);
+  if (!f) return 0;
+  return Math.max(0, f.options.indexOf(v));
+}
+
+function onSelectChange(key: string, value: string) {
+  customValues[key] = value;
+}
+
+function multiChecked(key: string, opt: string) {
+  return ((customValues[key] as string[]) || []).includes(opt);
+}
+
+function onMultiChange(key: string, values: string[]) {
+  customValues[key] = values;
+}
+
 function validate(): boolean {
   let ok = true;
   errors.customerName = errors.customerPhone = errors.photoCount = errors.requirements = '';
@@ -78,6 +157,18 @@ function validate(): boolean {
   if (!/^1\d{10}$/.test(form.customerPhone)) { errors.customerPhone = '请输入有效手机号'; ok = false; }
   if (!form.photoCount || form.photoCount < 1 || form.photoCount > 50) { errors.photoCount = '张数需在1-50之间'; ok = false; }
   if (!form.requirements || form.requirements.length < 10) { errors.requirements = '请至少填写10个字描述需求'; ok = false; }
+
+  // Validate custom fields
+  for (const f of customFields.value) {
+    fieldErrors[f.key] = '';
+    if (!f.required) continue;
+    const v = customValues[f.key];
+    if (v === undefined || v === '' || (Array.isArray(v) && v.length === 0)) {
+      fieldErrors[f.key] = '请' + (f.type === 'select' ? '选择' : '填写') + f.label;
+      ok = false;
+    }
+  }
+
   return ok;
 }
 
@@ -85,9 +176,16 @@ async function handleSubmit() {
   submitError.value = null;
   if (!validate()) return;
   try {
+    // Build customFields payload
+    const cf: Record<string, unknown> = {};
+    customFields.value.forEach((f) => {
+      cf[f.key] = customValues[f.key];
+    });
+
     const res = await submit({
       scheduleDate: props.date.date, customerName: form.customerName, customerPhone: form.customerPhone,
       photoCount: form.photoCount, requirements: form.requirements, additionalNotes: form.additionalNotes || undefined,
+      customFields: cf,
       expectedVersion: props.date.version,
     });
     if (res.code === 0 || res.code === 1005) {
@@ -113,4 +211,6 @@ async function handleSubmit() {
 .fd-btn { width: 100%; background: #409eff; color: #fff; border: none; border-radius: 8px; padding: 12px; font-size: 16px; font-weight: 600; }
 .fd-btn[disabled] { opacity: 0.6; }
 .fd-disc { text-align: center; font-size: 11px; color: #bbb; margin-top: 10px; }
+.fd-pick { width: 100%; height: 44px; line-height: 44px; font-size: 14px; color: #333; border: 1px solid #ddd; border-radius: 6px; padding: 0 12px; box-sizing: border-box; background: #fff; }
+.fd-chk { display: block; font-size: 14px; line-height: 36px; }
 </style>

@@ -216,3 +216,41 @@
 ### D017 · 可预约天数约束
 
 **决策：** `booking_days` 在客户端日历强制生效，超出范围标记 unavailable
+
+---
+
+## 2026-05-25 · Phase 5 伪上线决策
+
+### D018 · 自定义表单字段：JSON 配置 + JSON 存储
+
+**决策：** 预约表单的自定义字段采用「config 定义字段 schema + Order.customFields JSON 存储用户值」模式
+
+**理由：**
+- 管理员可随时增删字段，无需 DB migration
+- 字段定义集中在一个 config key (`booking_form_fields`)，便于管理
+- 用户填写的值以 JSON 存储在 Order 行内，查询时一并返回
+- 支持三种字段类型（select / multi_select / text）覆盖当前需求
+
+**替代方案：** 为每种字段新增 DB 列 — 每次加字段都要 migration，管理端需要改 UI，灵活性差。
+
+### D019 · snake_case → camelCase 映射层放 Controller
+
+**决策：** 前端 snake_case 到后端 camelCase 的映射放在 Controller 层，而非前端改发送格式
+
+**理由：**
+- 前端已有上线版本，改前端 key 名会导致存量用户请求失败
+- Controller 映射层集中处理，不影响 Service 层的类型安全
+- 后续可逐步统一前端也改为 camelCase，映射层到时移除即可
+
+**替代方案：** 前端全改 — 需同步发版，风险高。
+
+### D020 · PM2 配置入库
+
+**决策：** 将 PM2 配置 (`ecosystem.config.js`) 和部署脚本 (`deploy.sh`) 纳入版本控制
+
+**理由：**
+- 部署流程可复现，不再依赖口头传递的命令
+- 新服务器环境一键部署
+- 脚本中 `cwd` 参数解决了之前的 .env 路径问题
+
+**替代方案：** 手动 PM2 start + 文档记录 — 容易遗忘参数，每次部署不稳定。

@@ -33,6 +33,7 @@ model Order {
   photoCount      Int      @map("photo_count")
   requirements    String   @db.Text
   additionalNotes String?  @map("additional_notes") @db.Text
+  customFields    Json?    @map("custom_fields")
   status          Int      @default(0) @map("status") // 0=待确认 1=修图中 2=待交付 3=已完成 4=已取消
   idempotencyKey  String   @unique @map("idempotency_key") @db.VarChar(64)
   userId          Int?     @map("user_id")

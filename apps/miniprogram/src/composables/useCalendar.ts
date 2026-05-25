@@ -13,6 +13,7 @@ export interface DayStatus {
 export function useCalendar() {
   const days = ref<DayStatus[]>([]);
   const loading = ref(false);
+  const refreshing = ref(false);
   const selectedDate = ref<DayStatus | null>(null);
   const currentMonth = ref(dayjs()); // today's month, can switch
 
@@ -23,7 +24,7 @@ export function useCalendar() {
     if (!forceRefresh) {
       const cached = uni.getStorageSync(cacheKey);
       const cacheTime = uni.getStorageSync(cacheKey + '_t');
-      if (cached && Date.now() - cacheTime < 60_000) {
+      if (cached && Date.now() - cacheTime < 30_000) {
         days.value = cached;
         return;
       }
@@ -76,15 +77,20 @@ export function useCalendar() {
   }
 
   async function refresh() {
-    await fetchCalendar(true);
-    // Re-sync selected date with fresh data
-    if (selectedDate.value) {
-      const fresh = days.value.find((d) => d.date === selectedDate.value!.date);
-      if (fresh && fresh.status !== 'full' && fresh.status !== 'unavailable') {
-        selectedDate.value = fresh;
-      } else {
-        selectedDate.value = null; // date became full — deselect
+    refreshing.value = true;
+    try {
+      await fetchCalendar(true);
+      // Re-sync selected date with fresh data
+      if (selectedDate.value) {
+        const fresh = days.value.find((d) => d.date === selectedDate.value!.date);
+        if (fresh && fresh.status !== 'full' && fresh.status !== 'unavailable') {
+          selectedDate.value = fresh;
+        } else {
+          selectedDate.value = null; // date became full — deselect
+        }
       }
+    } finally {
+      refreshing.value = false;
     }
   }
 
@@ -93,5 +99,5 @@ export function useCalendar() {
     selectedDate.value = day;
   }
 
-  return { days, loading, selectedDate, currentMonth, fetchCalendar, refresh, selectDate, prevMonth, nextMonth, goToday };
+  return { days, loading, refreshing, selectedDate, currentMonth, fetchCalendar, refresh, selectDate, prevMonth, nextMonth, goToday };
 }

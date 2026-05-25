@@ -40,6 +40,9 @@ export class CreateOrderDto {
 
   @IsString()
   idempotencyKey: string;
+
+  @IsOptional()
+  customFields?: Record<string, unknown>;
 }
 
 export class QueryOrderDto {

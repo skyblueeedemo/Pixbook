@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
-import { onShow } from '@dcloudio/uni-app';
+import { onShow, onPullDownRefresh } from '@dcloudio/uni-app';
 import { useCalendar } from '@/composables/useCalendar';
 import BookingCalendar from '@/components/calendar/BookingCalendar.vue';
 import BookingForm from '@/components/booking/BookingForm.vue';
@@ -35,6 +35,12 @@ onMounted(() => fetchCalendar());
 onShow(() => {
   if (firstShow) { firstShow = false; return; }
   refresh();
+});
+
+// Pull-to-refresh
+onPullDownRefresh(async () => {
+  await refresh();
+  uni.stopPullDownRefresh();
 });
 
 function onSuccess(result: { orderId: string; photoCount: number }) {

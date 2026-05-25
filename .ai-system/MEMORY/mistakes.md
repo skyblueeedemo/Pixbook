@@ -152,3 +152,28 @@ _项目初始化阶段较顺利，无重大错误记录。_
 **错误描述：** 手动 `INSERT IGNORE INTO config` 无 `updated_at`，MySQL 填入零值日期，Prisma 读取报 "Value out of range"
 **根因：** Prisma 不支持 `0000-00-00` 日期
 **修正：** 删除坏行，统一使用 Service 层 `upsert`
+
+---
+
+## V1.0.1 伪上线
+
+### M017 · PM2 工作目录导致 .env 静默失败
+
+**日期：** 2026-05-25
+**错误描述：** PM2 启动后管理后台只能用默认密码登录，自定义密码不生效
+**根因：** `pm2 start` 未指定 `--cwd`，`ConfigModule.forRoot()` 默认在 `process.cwd()` 找 `.env`，而在项目根目录而非 `packages/server/` 启动时找不到文件
+**修正：** `main.ts` 顶部加 `dotenv.config()` 显式加载，PM2 加 `--cwd` 参数
+
+### M018 · 小程序真机 HTTP 被拦截
+
+**日期：** 2026-05-25
+**错误描述：** 模拟器中 API 正常，真机扫码报 `request:fail`
+**根因：** 微信小程序在真机上强制 HTTPS（非 localhost 地址），即使勾选「不校验合法域名」也不放行 HTTP
+**修正：** 暂用模拟器测试；正式上线前必须配 HTTPS
+
+### M019 · 配置保存按键名不匹配导致静默无变化
+
+**日期：** 2026-05-25
+**错误描述：** 管理后台改 `default_max_slots` 点保存，提示成功但刷新后值没变
+**根因：** 前端发送 `default_max_slots` (snake_case)，Service 期望 `defaultMaxSlots` (camelCase)，TS 类型断言 `as never` 掩盖了问题
+**修正：** Controller 加 `mapSnakeToCamel()` 映射

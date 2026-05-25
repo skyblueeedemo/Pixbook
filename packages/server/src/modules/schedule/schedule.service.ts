@@ -16,7 +16,7 @@ export interface DayStatus {
 @Injectable()
 export class ScheduleService {
   private readonly logger = new Logger(ScheduleService.name);
-  private readonly CACHE_TTL = 60; // seconds
+  private readonly CACHE_TTL = 30; // seconds
 
   constructor(
     private readonly prisma: PrismaService,

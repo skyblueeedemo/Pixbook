@@ -8,6 +8,7 @@ interface BookingForm {
   photoCount: number;
   requirements: string;
   additionalNotes?: string;
+  customFields?: Record<string, unknown>;
   expectedVersion: number;
 }
 

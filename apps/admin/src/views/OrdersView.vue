@@ -69,6 +69,12 @@
             <el-descriptions-item label="预约日期">{{ fmt(detail.scheduleDate) }}</el-descriptions-item>
             <el-descriptions-item label="修图张数">{{ detail.photoCount }}</el-descriptions-item>
             <el-descriptions-item label="修图需求">{{ detail.requirements }}</el-descriptions-item>
+            <el-descriptions-item v-if="detail.additionalNotes" label="附加说明">{{ detail.additionalNotes }}</el-descriptions-item>
+            <template v-if="detail.customFields && Object.keys(detail.customFields).length">
+              <el-descriptions-item v-for="(v, k) in detail.customFields" :key="k" :label="String(k)">
+                {{ Array.isArray(v) ? v.join('、') : String(v ?? '') }}
+              </el-descriptions-item>
+            </template>
             <el-descriptions-item label="状态">
               <el-tag :type="statusTag(detail.status)">{{ detail.statusLabel }}</el-tag>
             </el-descriptions-item>
@@ -108,6 +114,8 @@ interface Order {
   customerPhone: string;
   photoCount: number;
   requirements: string;
+  additionalNotes?: string;
+  customFields?: Record<string, unknown>;
   status: number;
   statusLabel: string;
   createdAt: string;

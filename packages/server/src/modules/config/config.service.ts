@@ -2,12 +2,21 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RedisService } from '../../common/redis/redis.service';
 
+export interface BookingFormField {
+  key: string;
+  label: string;
+  type: 'select' | 'multi_select' | 'text';
+  required: boolean;
+  options: string[];
+}
+
 export interface AppConfig {
   defaultMaxSlots: number;
   bookingDays: number;
   restDaysOfWeek: number[];
   extraRestDates: string[];
   extraWorkDates: string[];
+  bookingFormFields: BookingFormField[];
 }
 
 @Injectable()
@@ -28,6 +37,7 @@ export class ConfigService {
       restDaysOfWeek: JSON.parse(map.rest_days_of_week ?? '[0]'),
       extraRestDates: JSON.parse(map.extra_rest_dates ?? '[]'),
       extraWorkDates: JSON.parse(map.extra_work_dates ?? '[]'),
+      bookingFormFields: JSON.parse(map.booking_form_fields ?? '[]'),
     };
   }
 
@@ -65,6 +75,13 @@ export class ConfigService {
         where: { key: 'extra_work_dates' },
         create: { key: 'extra_work_dates', value: JSON.stringify(partial.extraWorkDates) },
         update: { value: JSON.stringify(partial.extraWorkDates) },
+      });
+    }
+    if (partial.bookingFormFields !== undefined) {
+      await this.prisma.config.upsert({
+        where: { key: 'booking_form_fields' },
+        create: { key: 'booking_form_fields', value: JSON.stringify(partial.bookingFormFields) },
+        update: { value: JSON.stringify(partial.bookingFormFields) },
       });
     }
 
