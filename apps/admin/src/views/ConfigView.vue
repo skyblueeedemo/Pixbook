@@ -59,9 +59,9 @@
               <span v-else style="color:#999;font-size:12px">自由输入</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="120" align="center">
+          <el-table-column label="操作" width="150" align="center">
             <template #default="{ row, $index }">
-              <el-button size="small" @click="openFieldDialog(row, $index)">编辑</el-button>
+              <el-button size="small" @click="openFieldDialog(row, $index)" style="margin-right:4px">编辑</el-button>
               <el-button size="small" type="danger" @click="removeField($index)">删除</el-button>
             </template>
           </el-table-column>
@@ -90,7 +90,7 @@
             <el-switch v-model="fieldForm.required" />
           </el-form-item>
           <el-form-item v-if="fieldForm.type !== 'text'" label="选项列表">
-            <div v-for="(_opt, oi) in fieldForm.options" :key="oi" style="display:flex;gap:8px;margin-bottom:6px">
+            <div v-for="(_opt, oi) in fieldForm.options" :key="oi" style="display:flex;gap:8px;margin-bottom:6px;align-items:center">
               <el-input v-model="fieldForm.options[oi]" placeholder="选项值" size="small" />
               <el-button size="small" type="danger" @click="fieldForm.options.splice(oi,1)" :icon="'Delete'" circle />
             </div>

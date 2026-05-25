@@ -62,7 +62,7 @@
       <!-- Detail drawer -->
       <el-drawer v-model="drawer" title="订单详情" size="400">
         <template v-if="detail">
-          <el-descriptions :column="1" border>
+          <el-descriptions :column="1" border label-width="100px">
             <el-descriptions-item label="订单号">{{ detail.orderId }}</el-descriptions-item>
             <el-descriptions-item label="客户姓名">{{ detail.customerName }}</el-descriptions-item>
             <el-descriptions-item label="手机号">{{ maskPhone(detail.customerPhone) }}</el-descriptions-item>

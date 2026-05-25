@@ -2,9 +2,9 @@
   <view class="cal">
     <!-- Month nav -->
     <view class="cal-nav">
-      <view class="cal-arr" @tap="emit('prevMonth')">◀</view>
+      <view class="cal-arr" @tap="emit('prevMonth')">←</view>
       <view class="cal-mo">{{ monthTitle }}</view>
-      <view class="cal-arr" @tap="emit('nextMonth')">▶</view>
+      <view class="cal-arr" @tap="emit('nextMonth')">→</view>
     </view>
 
     <!-- Weekday -->

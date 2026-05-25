@@ -5,9 +5,9 @@
 
       <!-- Month nav -->
       <div class="sv-nav">
-        <el-button @click="prevMonth" :icon="'ArrowLeft'" circle size="small" />
+        <el-button @click="prevMonth" circle size="small">←</el-button>
         <span class="sv-mo">{{ monthTitle }}</span>
-        <el-button @click="nextMonth" :icon="'ArrowRight'" circle size="small" />
+        <el-button @click="nextMonth" circle size="small">→</el-button>
         <el-button @click="goToday" size="small" style="margin-left:12px">本月</el-button>
       </div>
 
