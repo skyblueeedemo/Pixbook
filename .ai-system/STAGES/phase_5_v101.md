@@ -73,8 +73,11 @@
 
 | 交付物 | 路径 |
 |------|------|
+| Git Tag | `v1.0.1` — 初版全链路跑通 |
 | PM2 配置 | `ecosystem.config.js` |
 | 部署脚本 | `deploy.sh` |
+| 域名脚本 | `setup-domain.sh` |
+| 环境脚本 | `setup-env.sh` |
 | 环境变量模板 | `.env.example` |
 | 数据库迁移 | prisma migration（custom_fields 列） |
 | 阶段文档 | `.ai-system/STAGES/phase_5_v101.md` |

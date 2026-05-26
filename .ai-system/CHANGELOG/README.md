@@ -17,6 +17,19 @@
 - 🔧 README 重写（三场景部署 + Logo）
 - 🔧 小程序 BASE_URL 环境切换开关 + 按需注入
 
+## 2026-05-26 · V1.0.1 正式上线 🏷️ `v1.0.1`
+
+- 🌐 域名 `pixbook.top` + Let's Encrypt SSL（certbot 自动续期）
+- 🔀 Nginx HTTPS 反向代理 `/api` → NestJS:3000
+- 🖥️ 管理后台 `https://pixbook.top`
+- 📱 小程序 PROD_URL 切为 `https://pixbook.top/api`
+- 📜 新增 `setup-domain.sh` 域名一键脚本
+- 🐛 修复 MySQL 8.0 sha256_password 认证（mysql_native_password）
+- 🐛 修复 PM2 script 路径重复 cwd
+- 🐛 修复 Prisma shadow 数据库 GRANT *.*
+- 🐛 修复阿里云安全组 80/443 端口拦截 certbot
+- ✅ 真机测试全链路通过
+
 ## 2026-05-24 · Phase 0-3 完成
 
 - ✅ Phase 0 — monorepo + Docker + Prisma + 三端骨架
