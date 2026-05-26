@@ -76,15 +76,33 @@ echo "🔧 确保 MySQL 运行中..."
 sudo systemctl start mysql 2>/dev/null || true
 sleep 1
 
+# ── 4.2 找可用的 MySQL 登录方式 ──────────────────
+MYSQL_CMD=""
+if sudo mysql -e "SELECT 1" &>/dev/null; then
+  # Ubuntu 22.04+ auth_socket
+  MYSQL_CMD="sudo mysql"
+elif [ -f /etc/mysql/debian.cnf ]; then
+  # Ubuntu 20.04 debian-sys-maint
+  MYSQL_CMD="mysql --defaults-file=/etc/mysql/debian.cnf"
+elif mysql -u root -ppixbook_root -e "SELECT 1" &>/dev/null; then
+  MYSQL_CMD="mysql -u root -ppixbook_root"
+fi
+
+if [ -z "$MYSQL_CMD" ]; then
+  echo -e "  ${RED}✗ 无法连接 MySQL。请手动重置 root 密码后重试。${NC}"
+  echo "     sudo mysqld_safe --skip-grant-tables --skip-networking &"
+  echo "     mysql -u root  →  ALTER USER 'root'@'localhost' IDENTIFIED BY 'pixbook_root';"
+  exit 1
+fi
+
 echo "🔧 配置 MySQL 用户 + 数据库..."
 MYSQL_PW="pixbook_dev"
 if [ -f packages/server/.env ]; then
-  # 尝试从 .env 读取 DATABASE_URL 中的密码
   ENV_PW=$(grep DATABASE_URL packages/server/.env 2>/dev/null | grep -oP '://[^:]+:\K[^@]+' || echo "")
   [ -n "$ENV_PW" ] && MYSQL_PW="$ENV_PW"
 fi
 
-sudo mysql <<SQL
+$MYSQL_CMD <<SQL
 -- 修正 root 认证插件（兼容 Prisma）
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'pixbook_root';
 

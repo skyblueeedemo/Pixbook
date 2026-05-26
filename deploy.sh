@@ -25,11 +25,22 @@ echo "🗄️  prisma migrate..."
 
 # 3.0 确保 MySQL 运行 + 认证插件兼容 Prisma
 sudo systemctl start mysql 2>/dev/null || true
+sleep 1
+
+# 找可用的 MySQL 登录方式
+if sudo mysql -e "SELECT 1" &>/dev/null; then
+  MYSQL_CMD="sudo mysql"
+elif [ -f /etc/mysql/debian.cnf ]; then
+  MYSQL_CMD="mysql --defaults-file=/etc/mysql/debian.cnf"
+else
+  MYSQL_CMD="mysql -u root -ppixbook_root"
+fi
+
 if command -v mysql &>/dev/null; then
   MYSQL_USER=$(grep DATABASE_URL packages/server/.env 2>/dev/null | grep -oP '://\K[^:]+' || echo "pixbook")
   MYSQL_PW=$(grep DATABASE_URL packages/server/.env 2>/dev/null | grep -oP '://[^:]+:\K[^@]+' || echo "")
   if [ -n "$MYSQL_PW" ]; then
-    sudo mysql -e "
+    $MYSQL_CMD -e "
       ALTER USER '${MYSQL_USER}'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_PW}';
       ALTER USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY '${MYSQL_PW}';
       FLUSH PRIVILEGES;
