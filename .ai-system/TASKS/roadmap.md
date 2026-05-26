@@ -7,6 +7,7 @@ Week 4-5 │ Phase 2 │ ✅ 小程序：日历/表单/查询/登录/真机
 Week 6-7 │ Phase 3 │ ✅ 管理后台：订单/配置/状态流转
 Week 8   │ Phase 4 │ ✅ E2E 测试 + 脱敏 + 部署文档 + 审核清单
 Week 9-10│ Phase 5 │ ✅ V1.0.1 伪上线：Bug修复 + 自定义表单 + 部署固化
+Week 11  │ Phase 5 │ ✅ 生产上线：域名 + SSL + Nginx + 管理后台
 ```
 
-> 🔵 V1.0.1 伪上线完成 — 待域名 + HTTPS 后正式上线
+> 🟢 已上线 https://pixbook.top — 待小程序提交审核

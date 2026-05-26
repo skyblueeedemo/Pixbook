@@ -1,16 +1,20 @@
 # 待办事项 · Todo
 
-> 最后更新：2026-05-25 · 阶段：🔵 V1.0.1 伪上线完成
+> 最后更新：2026-05-26 · 阶段：🟢 已上线
 
 ---
 
-## 🔴 上线前（需手动操作）
+## ✅ 生产部署
 
-- [ ] 域名 + SSL 证书
-- [ ] Nginx HTTPS 配置
-- [ ] 微信公众平台配置合法域名
-- [ ] 小程序提交审核（参考 `docs/review-checklist.md`）
-- [ ] 服务器运行 `./deploy.sh`
+- [x] 域名 pixbook.top + SSL 证书（Let's Encrypt）
+- [x] Nginx HTTPS 反向代理 + 管理后台
+- [x] 服务器部署（deploy.sh）
+- [x] setup-env.sh / setup-domain.sh 脚本就绪
+
+## 🔴 待完成
+
+- [ ] 微信公众平台配置合法域名（https://pixbook.top）
+- [ ] 小程序提交审核
 
 ## 🔮 V1.1 迭代
 

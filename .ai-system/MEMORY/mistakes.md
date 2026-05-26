@@ -184,3 +184,35 @@ _项目初始化阶段较顺利，无重大错误记录。_
 **错误描述：** 联系方式（微信号/QQ号）放在 `booking_form_fields` 自定义字段中，查询订单需要遍历 JSON，且自定义字段的 key 在管理端和表单端不一致
 **根因：** 过度使用灵活设计，把每个订单都有的核心字段放在了 JSON schema 里
 **修正：** 升为 Order 表硬字段 `contactMethod` + `contactValue`，从自定义字段配置中移除
+
+---
+
+## 生产上线（2026-05-26）
+
+### M021 · 阿里云安全组端口未开放导致 certbot 超时
+
+**日期：** 2026-05-26
+**错误描述：** certbot 申请 SSL 时报 `Timeout during connect (likely firewall problem)`
+**根因：** 阿里云 ECS 安全组默认只开了 22 端口，80/443 未放行
+**修正：** ECS 控制台 → 安全组 → 添加入方向规则 TCP 80 + 443
+
+### M022 · PM2 ecosystem script 路径重复 cwd
+
+**日期：** 2026-05-26
+**错误描述：** PM2 报 `Script not found: /root/Pixbook/packages/server/packages/server/dist/main.js`
+**根因：** `ecosystem.config.js` 中 `cwd: './packages/server'` 已指定工作目录，但 `script` 又写了 `'packages/server/dist/main.js'`，导致路径叠加
+**修正：** `script` 改为 `'dist/main.js'`（相对 cwd）
+
+### M023 · Prisma shadow 数据库需要 GRANT *.*
+
+**日期：** 2026-05-26
+**错误描述：** `prisma migrate dev` 报 `P3014: User was denied access on the database`
+**根因：** `migrate dev` 需要创建 shadow 数据库来验证迁移，`pixbook.*` 权限不够，需要 `*.*` 全局权限
+**修正：** `GRANT ALL PRIVILEGES ON *.* TO 'pixbook'@'localhost'`
+
+### M024 · MySQL 8.0 caching_sha2_password 不兼容 Prisma
+
+**日期：** 2026-05-26
+**错误描述：** Prisma 连接报 `Unknown authentication plugin 'sha256_password'`
+**根因：** MySQL 8.0 默认 `caching_sha2_password` 插件，Prisma 引擎不支持
+**修正：** `ALTER USER ... IDENTIFIED WITH mysql_native_password`，setup-env.sh 和 deploy.sh 均自动执行

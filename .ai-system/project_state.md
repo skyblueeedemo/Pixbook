@@ -1,7 +1,7 @@
 # 项目状态 · Project State
 
-> 最后更新：2026-05-25
-> 状态：🔵 V1.0.1 伪上线完成
+> 最后更新：2026-05-26
+> 状态：🟢 已上线 (pixbook.top)
 
 ---
 
@@ -56,12 +56,16 @@ Phase 5 ████████████████████ ✅ V1.0.1 
 
 ---
 
-## 待上线（需手动操作）
+### 生产部署（2026-05-26 完成）
+- `setup-domain.sh` — 域名 + SSL + Nginx 一键配置
+- 域名 `pixbook.top` + Let's Encrypt SSL
+- Nginx 反向代理 `/api` → NestJS:3000
+- 管理后台 `https://pixbook.top`
+- 小程序 API 地址已切为 `https://pixbook.top/api`
+
+## 待上线
 
 | 任务 | 说明 |
 |------|------|
-| 域名 + SSL | 小程序真机要求 HTTPS |
-| Nginx HTTPS | 配置证书 |
-| 微信合法域名 | 公众平台配置 |
+| 微信公众平台合法域名 | https://pixbook.top |
 | 小程序提交审核 | 参考 `docs/review-checklist.md` |
-| 服务器部署 | 参考 `deploy.sh` |

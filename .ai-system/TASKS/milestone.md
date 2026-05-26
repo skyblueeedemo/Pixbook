@@ -16,4 +16,7 @@ monorepo + Docker + Prisma + 三端跑通
 E2E 测试 · 手机号脱敏 · 部署文档 · 审核清单
 
 ## M5 · 伪上线 ✅
-Bug 修复（配置保存 / 缓存同步 / .env 加载 / UI对齐）· 自定义预约表单 · 联系方式硬字段 · 部署脚本 · PM2 固化
+Bug 修复 · 自定义预约表单 · 联系方式硬字段 · 部署脚本 · PM2 固化
+
+## M6 · 生产上线 ✅
+域名 pixbook.top · SSL (Let's Encrypt) · Nginx HTTPS 反向代理 · setup-domain.sh · 管理后台上线

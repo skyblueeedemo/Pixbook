@@ -274,3 +274,38 @@
 - 种子数据移除 contact_method/contact_value（已升为硬字段）
 
 **替代方案：** 保持 phone 必填 + customFields 存 QQ/微信 — 但 phone 作为必填项对 QQ/微信用户不友好
+
+---
+
+## 2026-05-26 · 生产上线决策
+
+### D022 · SSL：Let's Encrypt + certbot
+
+**决策：** 使用 certbot (Let's Encrypt) 免费 SSL 证书，而非阿里云/腾讯云付费证书
+
+**理由：**
+- 永久免费，90 天自动续期，零运维成本
+- certbot 自动修改 Nginx 配置，HTTPS 一键就绪
+- 微信小程序只验证证书有效性，不区分 CA 品牌
+
+**替代方案：** 阿里云免费 DV 证书 — 需要手动下载 + 手动配 Nginx + 每年手动续期。
+
+### D023 · Nginx 反向代理 /api → NestJS:3000
+
+**决策：** Nginx 处理 HTTPS + 反向代理，不暴露 NestJS 的 3000 端口到公网
+
+**理由：**
+- Nginx 处理 SSL termination，NestJS 无需配置证书
+- `/api` 反向代理到 `127.0.0.1:3000`，端口不对外暴露
+- `/` 直接 serve 管理后台静态文件，无需额外 HTTP 服务
+
+### D024 · setup-domain.sh 一键脚本
+
+**决策：** 将域名 + SSL + Nginx 配置抽象为独立脚本，与代码部署分离
+
+**理由：**
+- 域名配置是一次性操作，不应与每次代码发布耦合
+- 新服务器只需 `setup-env.sh → setup-domain.sh → deploy.sh` 三步
+- 包含 iptables 开放 + 安全组提示，减少外部排查步骤
+
+**替代方案：** 手动操作 — 今晚实际踩坑证明手动操作至少需要 4 轮反复排查防火墙/安全组/certbot。

@@ -178,6 +178,34 @@
 
 ---
 
+## 生产上线（2026-05-26）
+
+### L017 · certbot 验证需要 80 端口公网可达
+
+**发现：** certbot HTTP-01 挑战需要 Let's Encrypt 服务器通过 80 端口访问 `/.well-known/acme-challenge`。即使 Nginx 监听 80，阿里云安全组未开 80 也会 Timeout。
+
+**解决：** 先确认安全组开放 TCP 80 + 443，再运行 certbot。
+
+**教训：** 云服务器有两层防火墙：云厂商安全组（控制台配）和 OS 级 iptables（命令行配），两层都要放行。
+
+### L018 · iptables 规则重启后丢失
+
+**发现：** 服务器重启后 iptables 规则清空，80/443 端口又被 DROP。之前 `iptables -I INPUT -p tcp --dport 80 -j ACCEPT` 只在内存中生效。
+
+**解决：** setup-domain.sh 中每次都执行 `iptables -I INPUT`，并提示用户开放安全组。
+
+**教训：** 生产脚本中的防火墙操作应该是幂等的，每次都跑一次 `iptables -I` 不依赖上次状态。
+
+### L019 · Ubuntu 20.04 vs 22.04 MySQL 认证差异
+
+**发现：** Ubuntu 22.04 MySQL root 使用 `auth_socket`（`sudo mysql` 免密），Ubuntu 20.04 使用 `caching_sha2_password`（需要 debian.cnf 文件）。同一套 `sudo mysql` 在 20.04 上报 1045。
+
+**解决：** 三级回退：`sudo mysql` → `mysql --defaults-file=/etc/mysql/debian.cnf` → `mysql -u root -p密码`。
+
+**教训：** 不要假设所有 Ubuntu 版本的 MySQL 默认认证方式一致。debian.cnf 是 Ubuntu 20.04 最可靠的备用入口。
+
+---
+
 ## 待记录
 
 - 小程序审核经验

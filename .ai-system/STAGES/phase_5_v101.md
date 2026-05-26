@@ -1,8 +1,8 @@
 # Phase 5 · V1.0.1 伪上线
 
 > 时间：第 9–10 周
-> 目标：Bug 修复 + 部署固化 + 自定义预约表单 + 全链路验证
-> 状态：🟢 已完成（2026-05-25）
+> 目标：Bug 修复 + 部署固化 + 自定义预约表单 + 全链路验证 + 生产上线
+> 状态：🟢 已上线（2026-05-26）
 
 ---
 
@@ -44,6 +44,17 @@
 | deploy.sh | 一键部署脚本（git pull → install → migrate → build → restart） | ✅ |
 | .env.example 更新 | 生产环境注释 + 部署指引 | ✅ |
 | request.ts 环境切换 | IS_PROD 开关 + DEV_URL/PROD_URL | ✅ |
+| setup-domain.sh | 域名 + SSL + Nginx 一键脚本 | ✅ |
+
+## 生产部署
+
+| 任务 | 说明 | 状态 |
+|------|------|:--:|
+| 域名 pixbook.top | DNS A 记录 → 120.55.96.207 | ✅ |
+| SSL 证书 | Let's Encrypt / certbot 自动续期 | ✅ |
+| Nginx 反向代理 | /api → NestJS:3000 + 管理后台静态文件 | ✅ |
+| 管理后台上线 | https://pixbook.top | ✅ |
+| 小程序 PROD_URL | https://pixbook.top/api | ✅ |
 
 ## 全链路测试
 

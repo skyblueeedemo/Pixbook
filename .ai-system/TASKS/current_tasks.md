@@ -35,11 +35,18 @@
 
 ---
 
-## 🔴 上线前
+## 🟢 生产部署（2026-05-26）
 
-- [ ] 域名 + SSL 证书
-- [ ] Nginx HTTPS 配置
-- [ ] 微信公众平台合法域名
+- [x] 域名 pixbook.top + SSL 证书（Let's Encrypt）
+- [x] Nginx HTTPS + 反向代理
+- [x] 管理后台 https://pixbook.top
+- [x] 小程序 PROD_URL = https://pixbook.top/api
+- [x] setup-domain.sh 一键域名配置脚本
+- [x] setup-env.sh / deploy.sh MySQL 自动修复
+
+## 🔴 待上线
+
+- [ ] 微信公众平台合法域名（https://pixbook.top）
 - [ ] 小程序提交审核
 
 ## 🔮 V1.1 后续迭代
