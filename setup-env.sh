@@ -1,7 +1,7 @@
 #!/bin/bash
 # ============================================================
 # Pixbook 环境安装脚本
-# 支持：宝塔面板 / Ubuntu 裸机
+# 系统：Ubuntu 22.04 / 24.04
 # 用法: bash setup-env.sh
 # ============================================================
 set -e
@@ -12,21 +12,26 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 echo -e "${GREEN}============================================${NC}"
-echo -e "${GREEN} Pixbook 环境检测 & 安装${NC}"
+echo -e "${GREEN} Pixbook 环境安装 · Ubuntu${NC}"
 echo -e "${GREEN}============================================${NC}"
 echo ""
 
-# ── 检测是否宝塔环境 ────────────────────────────
-IS_BT=false
-if [ -f /www/server/panel/data/port.pl ] || command -v bt &>/dev/null; then
-  IS_BT=true
-  echo -e "${YELLOW}检测到宝塔面板环境${NC}"
-else
-  echo -e "${YELLOW}检测到 Ubuntu/Debian 裸机环境${NC}"
-fi
+# ── 0. apt update ───────────────────────────────────
+echo "🔄 apt update..."
+sudo apt update -qq
 echo ""
 
-# ── 1. Node.js 24+ ──────────────────────────────────
+# ── 1. Git ──────────────────────────────────────────
+echo -n "Git ... "
+if command -v git &>/dev/null; then
+  echo -e "${GREEN}✓ $(git --version | awk '{print $NF}')${NC}"
+else
+  echo -e "${YELLOW}未安装 → 正在安装...${NC}"
+  sudo apt install -y -qq git
+  echo -e "${GREEN}✓ $(git --version | awk '{print $NF}')${NC}"
+fi
+
+# ── 2. Node.js 24+ ──────────────────────────────────
 echo -n "Node.js ... "
 if command -v node &>/dev/null; then
   NODE_VER=$(node -v | sed 's/v//' | cut -d. -f1)
@@ -34,59 +39,95 @@ if command -v node &>/dev/null; then
     echo -e "${GREEN}✓ $(node -v)${NC}"
   else
     echo -e "${RED}✗ $(node -v)（需要 ≥24）${NC}"
+    echo "  升级: curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash - && sudo apt install -y nodejs"
     exit 1
   fi
 else
-  echo -e "${RED}✗ 未安装${NC}"
-  echo "  安装: curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash - && sudo apt install -y nodejs"
-  exit 1
+  echo -e "${YELLOW}未安装 → 正在安装...${NC}"
+  curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
+  sudo apt install -y -qq nodejs
+  echo -e "${GREEN}✓ $(node -v)${NC}"
 fi
 
-# ── 2. pnpm ─────────────────────────────────────────
+# ── 3. pnpm ─────────────────────────────────────────
 echo -n "pnpm ... "
 if command -v pnpm &>/dev/null; then
   echo -e "${GREEN}✓ $(pnpm -v)${NC}"
 else
   echo -e "${YELLOW}未安装 → 正在安装...${NC}"
   npm install -g pnpm
-  echo -e "${GREEN}✓ pnpm $(pnpm -v) 安装完成${NC}"
+  echo -e "${GREEN}✓ pnpm $(pnpm -v)${NC}"
 fi
 
-# ── 3. MySQL ────────────────────────────────────────
+# ── 4. MySQL 8 ──────────────────────────────────────
 echo -n "MySQL ... "
-if command -v mysql &>/dev/null || [ -f /www/server/mysql/bin/mysql ]; then
-  echo -e "${GREEN}✓ 已安装${NC}"
-  if [ "$IS_BT" = true ]; then
-    echo "  宝塔管理 → 数据库 → 创建 pixbook 库"
-  fi
+if command -v mysql &>/dev/null; then
+  echo -e "${GREEN}✓ $(mysql --version | awk '{print $3}')${NC}"
 else
-  echo -e "${RED}✗ 未安装${NC}"
-  if [ "$IS_BT" = true ]; then
-    echo "  宝塔 → 软件商店 → 搜索 MySQL 8 → 安装"
-  else
-    echo "  sudo apt install -y mysql-server"
-  fi
-  exit 1
+  echo -e "${YELLOW}未安装 → 正在安装...${NC}"
+  sudo apt install -y -qq mysql-server
+  sudo systemctl enable mysql
+  sudo systemctl start mysql
+  echo -e "${GREEN}✓ 已安装${NC}"
 fi
 
-# ── 4. Redis ────────────────────────────────────────
+# ── 4.1 MySQL 初始化（sudo mysql 绕过认证） ──────────
+echo "🔧 配置 MySQL 用户 + 数据库..."
+MYSQL_PW="pixbook_dev"
+if [ -f packages/server/.env ]; then
+  # 尝试从 .env 读取 DATABASE_URL 中的密码
+  ENV_PW=$(grep DATABASE_URL packages/server/.env 2>/dev/null | grep -oP '://[^:]+:\K[^@]+' || echo "")
+  [ -n "$ENV_PW" ] && MYSQL_PW="$ENV_PW"
+fi
+
+sudo mysql <<SQL
+-- 修正 root 认证插件（兼容 Prisma）
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'pixbook_root';
+
+-- 创建 pixbook 用户（如已存在则修正插件）
+CREATE USER IF NOT EXISTS 'pixbook'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_PW}';
+CREATE USER IF NOT EXISTS 'pixbook'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY '${MYSQL_PW}';
+ALTER USER 'pixbook'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_PW}';
+ALTER USER 'pixbook'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY '${MYSQL_PW}';
+
+-- 创建数据库
+CREATE DATABASE IF NOT EXISTS pixbook CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- 授权
+GRANT ALL PRIVILEGES ON pixbook.* TO 'pixbook'@'localhost';
+GRANT ALL PRIVILEGES ON pixbook.* TO 'pixbook'@'127.0.0.1';
+FLUSH PRIVILEGES;
+SQL
+
+echo -e "  ${GREEN}✓ 用户 pixbook / 数据库 pixbook / mysql_native_password 全部就绪${NC}"
+echo -e "  ${YELLOW}⚠ MySQL root 密码: pixbook_root  |  pixbook 密码: ${MYSQL_PW}${NC}"
+echo ""
+
+# ── 5. Redis ────────────────────────────────────────
 echo -n "Redis ... "
-if command -v redis-cli &>/dev/null || [ -f /www/server/redis/src/redis-cli ]; then
-  echo -e "${GREEN}✓ 已安装${NC}"
+if command -v redis-cli &>/dev/null; then
+  echo -e "${GREEN}✓ $(redis-cli --version | awk '{print $2}')${NC}"
 else
-  echo -e "${YELLOW}未安装${NC}"
-  if [ "$IS_BT" = true ]; then
-    echo "  宝塔 → 软件商店 → 搜索 Redis → 安装"
-  else
-    echo -n "  正在安装 Redis ... "
-    sudo apt update -qq && sudo apt install -y -qq redis-server
-    sudo systemctl enable redis-server
-    sudo systemctl start redis-server
-    echo -e "${GREEN}✓${NC}"
-  fi
+  echo -e "${YELLOW}未安装 → 正在安装...${NC}"
+  sudo apt install -y -qq redis-server
+  sudo systemctl enable redis-server
+  sudo systemctl start redis-server
+  echo -e "${GREEN}✓ 已安装${NC}"
 fi
 
-# ── 5. PM2 ──────────────────────────────────────────
+# ── 6. Nginx ────────────────────────────────────────
+echo -n "Nginx ... "
+if command -v nginx &>/dev/null; then
+  echo -e "${GREEN}✓ $(nginx -v 2>&1 | awk '{print $NF}')${NC}"
+else
+  echo -e "${YELLOW}未安装 → 正在安装...${NC}"
+  sudo apt install -y -qq nginx
+  sudo systemctl enable nginx
+  sudo systemctl start nginx
+  echo -e "${GREEN}✓ 已安装${NC}"
+fi
+
+# ── 7. PM2 ──────────────────────────────────────────
 echo -n "PM2 ... "
 if command -v pm2 &>/dev/null; then
   echo -e "${GREEN}✓ $(pm2 -v)${NC}"
@@ -96,60 +137,37 @@ else
   echo -e "${GREEN}✓ PM2 安装完成${NC}"
 fi
 
-# ── 6. Nginx ────────────────────────────────────────
-echo -n "Nginx ... "
-if command -v nginx &>/dev/null || [ -f /www/server/nginx/sbin/nginx ]; then
-  echo -e "${GREEN}✓ 已安装${NC}"
-else
-  echo -e "${YELLOW}未安装${NC}"
-  if [ "$IS_BT" = true ]; then
-    echo "  宝塔 → 软件商店 → 搜索 Nginx → 安装"
-  else
-    echo -n "  正在安装 Nginx ... "
-    sudo apt update -qq && sudo apt install -y -qq nginx
-    sudo systemctl enable nginx
-    sudo systemctl start nginx
-    echo -e "${GREEN}✓${NC}"
-  fi
-fi
-
-# ── 7. PM2 开机自启 ─────────────────────────────────
+# ── 8. PM2 开机自启 ─────────────────────────────────
 echo -n "PM2 开机自启 ... "
-pm2 startup 2>/dev/null || echo -n ""
-pm2 save 2>/dev/null || echo -n ""
+pm2 startup systemd -u "$USER" --hp "$HOME" 2>/dev/null || true
 echo -e "${GREEN}✓${NC}"
 
 echo ""
 echo -e "${GREEN}============================================${NC}"
-echo -e "${GREEN} ✅ 环境检测完成${NC}"
+echo -e "${GREEN} ✅ 环境安装完成${NC}"
 echo -e "${GREEN}============================================${NC}"
 echo ""
 
-# ── 提示 Git 配置 ──────────────────────────────────
-if ! command -v git &>/dev/null; then
-  echo -e "${YELLOW}⚠ Git 未安装，请执行: sudo apt install -y git${NC}"
-fi
-
 # ── 下一步指引 ──────────────────────────────────────
-echo "下一步:"
+echo "📋 接下来手动完成以下步骤:"
+echo ""
 echo "  1. 克隆项目:"
 echo "     git clone <你的仓库地址> && cd Pixbook"
 echo ""
-echo "  2. 配置环境变量:"
+echo "  2. 配置 .env:"
 echo "     cp .env.example packages/server/.env"
 echo "     vim packages/server/.env"
 echo ""
-echo "  3. 手动修改 .env 中的以下占位符:"
-echo "     · DATABASE_URL    — MySQL 密码"
-echo "     · JWT_SECRET      — 运行 openssl rand -hex 32 生成"
-echo "     · WX_APP_ID       — 微信公众平台 AppID"
-echo "     · WX_APP_SECRET   — 微信公众平台 AppSecret"
-echo "     · ADMIN_USERNAME  — 管理后台登录账号"
-echo "     · ADMIN_PASSWORD  — 管理后台登录密码"
+echo "     以下占位符必须修改:"
+echo "       DATABASE_URL   → MySQL 连接信息（含密码）"
+echo "       JWT_SECRET     → openssl rand -hex 32 生成"
+echo "       WX_APP_ID      → 微信公众平台 AppID"
+echo "       WX_APP_SECRET  → 微信公众平台 AppSecret"
+echo "       ADMIN_PASSWORD → 管理后台登录密码"
 echo ""
-echo "  4. 初始化数据库:"
-echo "     pnpm --prefix packages/server db:migrate"
-echo "     pnpm --prefix packages/server db:seed"
+echo "  3. 初始化数据库:"
+echo "     pnpm --filter @pixbook/server db:migrate"
+echo "     pnpm --filter @pixbook/server db:seed"
 echo ""
-echo "  5. 部署上线:"
-echo "     ./deploy.sh"
+echo "  4. 一键部署:"
+echo "     bash deploy.sh"

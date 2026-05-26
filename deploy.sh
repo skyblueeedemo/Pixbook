@@ -14,7 +14,7 @@ echo ""
 
 # ── 1. Pull latest code ────────────────────────────
 echo "🔽 git pull..."
-git pull origin main
+git pull origin master
 
 # ── 2. Install deps ────────────────────────────────
 echo "📦 pnpm install..."
@@ -22,6 +22,20 @@ pnpm install --frozen-lockfile
 
 # ── 3. Database migration ──────────────────────────
 echo "🗄️  prisma migrate..."
+
+# 3.0 确保 MySQL 用户认证插件兼容 Prisma
+if command -v mysql &>/dev/null; then
+  MYSQL_USER=$(grep DATABASE_URL packages/server/.env 2>/dev/null | grep -oP '://\K[^:]+' || echo "pixbook")
+  MYSQL_PW=$(grep DATABASE_URL packages/server/.env 2>/dev/null | grep -oP '://[^:]+:\K[^@]+' || echo "")
+  if [ -n "$MYSQL_PW" ]; then
+    sudo mysql -e "
+      ALTER USER '${MYSQL_USER}'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_PW}';
+      ALTER USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY '${MYSQL_PW}';
+      FLUSH PRIVILEGES;
+    " 2>/dev/null || echo "  ⚠ MySQL 用户修正跳过（可能已正确配置）"
+  fi
+fi
+
 pnpm --filter @pixbook/server db:generate
 pnpm --filter @pixbook/server db:migrate
 
