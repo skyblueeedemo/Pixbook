@@ -11,10 +11,10 @@
 - [x] 服务器部署（deploy.sh）
 - [x] setup-env.sh / setup-domain.sh 脚本就绪
 
-## 🔴 待完成
+## ✅ 全部完成（真机测试通过）
 
-- [ ] 微信公众平台配置合法域名（https://pixbook.top）
-- [ ] 小程序提交审核
+- [x] 微信公众平台配置合法域名（https://pixbook.top）
+- [x] 小程序真机测试通过
 
 ## 🔮 V1.1 迭代
 

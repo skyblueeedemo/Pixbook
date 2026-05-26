@@ -44,10 +44,12 @@
 - [x] setup-domain.sh 一键域名配置脚本
 - [x] setup-env.sh / deploy.sh MySQL 自动修复
 
-## 🔴 待上线
+## 🟢 全部上线
 
-- [ ] 微信公众平台合法域名（https://pixbook.top）
-- [ ] 小程序提交审核
+- [x] 微信公众平台合法域名（https://pixbook.top）
+- [x] 小程序真机测试通过
+
+> 🎉 V1.0.1 已正式上线运行
 
 ## 🔮 V1.1 后续迭代
 
