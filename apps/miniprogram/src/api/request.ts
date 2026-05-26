@@ -14,7 +14,7 @@ type RequestOptions = UniApp.RequestOptions;
  * 上线前改为正式域名，并确保微信公众平台已配置合法域名。
  */
 const DEV_URL = 'http://192.168.31.191:3000/api';
-const PROD_URL = 'http://120.55.96.207/api'; // ← 上线后换成 HTTPS 域名
+const PROD_URL = 'https://pixbook.top/api';
 
 const IS_PROD = true; // ← 开发用 false（局域网 IP），部署服务器用 true
 const BASE_URL = IS_PROD ? PROD_URL : DEV_URL;
