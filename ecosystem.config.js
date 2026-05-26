@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'pixbook-api',
-      script: 'packages/server/dist/main.js',
+      script: 'dist/main.js',
       cwd: './packages/server',
       env: {
         NODE_ENV: 'production',
