@@ -23,7 +23,8 @@ pnpm install --frozen-lockfile
 # ── 3. Database migration ──────────────────────────
 echo "🗄️  prisma migrate..."
 
-# 3.0 确保 MySQL 用户认证插件兼容 Prisma
+# 3.0 确保 MySQL 运行 + 认证插件兼容 Prisma
+sudo systemctl start mysql 2>/dev/null || true
 if command -v mysql &>/dev/null; then
   MYSQL_USER=$(grep DATABASE_URL packages/server/.env 2>/dev/null | grep -oP '://\K[^:]+' || echo "pixbook")
   MYSQL_PW=$(grep DATABASE_URL packages/server/.env 2>/dev/null | grep -oP '://[^:]+:\K[^@]+' || echo "")

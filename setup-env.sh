@@ -71,7 +71,11 @@ else
   echo -e "${GREEN}✓ 已安装${NC}"
 fi
 
-# ── 4.1 MySQL 初始化（sudo mysql 绕过认证） ──────────
+# ── 4.1 确保 MySQL 运行 + 初始化 ──────────────────
+echo "🔧 确保 MySQL 运行中..."
+sudo systemctl start mysql 2>/dev/null || true
+sleep 1
+
 echo "🔧 配置 MySQL 用户 + 数据库..."
 MYSQL_PW="pixbook_dev"
 if [ -f packages/server/.env ]; then
