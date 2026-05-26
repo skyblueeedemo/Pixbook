@@ -43,6 +43,8 @@ if command -v mysql &>/dev/null; then
     $MYSQL_CMD -e "
       ALTER USER '${MYSQL_USER}'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_PW}';
       ALTER USER '${MYSQL_USER}'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY '${MYSQL_PW}';
+      GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_USER}'@'localhost';
+      GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_USER}'@'127.0.0.1';
       FLUSH PRIVILEGES;
     " 2>/dev/null || echo "  ⚠ MySQL 用户修正跳过（可能已正确配置）"
   fi

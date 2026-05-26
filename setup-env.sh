@@ -115,9 +115,9 @@ ALTER USER 'pixbook'@'127.0.0.1' IDENTIFIED WITH mysql_native_password BY '${MYS
 -- 创建数据库
 CREATE DATABASE IF NOT EXISTS pixbook CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- 授权
-GRANT ALL PRIVILEGES ON pixbook.* TO 'pixbook'@'localhost';
-GRANT ALL PRIVILEGES ON pixbook.* TO 'pixbook'@'127.0.0.1';
+-- 授权（含 *.* 全局权限 — Prisma migrate 需要创建 shadow 库）
+GRANT ALL PRIVILEGES ON *.* TO 'pixbook'@'localhost';
+GRANT ALL PRIVILEGES ON *.* TO 'pixbook'@'127.0.0.1';
 FLUSH PRIVILEGES;
 SQL
 
