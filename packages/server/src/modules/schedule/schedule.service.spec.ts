@@ -14,7 +14,7 @@ describe('ScheduleService', () => {
 
   const mockConfigs = [
     { key: 'default_max_slots', value: '5' },
-    { key: 'booking_range_days', value: '30' },
+    { key: 'booking_days', value: '30' },
     { key: 'rest_days_of_week', value: '[0]' },         // Sunday rest
     { key: 'extra_rest_dates', value: '["2026-06-15"]' }, // extra rest
   ];

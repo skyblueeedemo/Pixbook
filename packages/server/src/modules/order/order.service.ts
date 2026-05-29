@@ -56,7 +56,7 @@ export class OrderService {
     const dup = await this.prisma.order.findFirst({
       where: {
         contactValue: dto.contactValue,
-        scheduleDate: new Date(dto.scheduleDate),
+        scheduleDate: new Date(dto.scheduleDate + 'T00:00:00'),
         status: { not: OrderStatus.CANCELLED },
       },
     });
@@ -70,7 +70,7 @@ export class OrderService {
     // ── 3. Ensure schedule row exists ────────────────
     await this.prisma.$executeRaw`
       INSERT IGNORE INTO schedules (date, max_slots, booked_slots, version, created_at, updated_at)
-      VALUES (${new Date(dto.scheduleDate)}, (
+      VALUES (${new Date(dto.scheduleDate + 'T00:00:00')}, (
         SELECT COALESCE(CAST(value AS UNSIGNED), 5) FROM config WHERE \`key\` = 'default_max_slots'
       ), 0, 0, NOW(), NOW())
     `;
@@ -82,7 +82,7 @@ export class OrderService {
         UPDATE schedules
         SET booked_slots = booked_slots + 1,
             version      = version + 1
-        WHERE date         = ${new Date(dto.scheduleDate)}
+        WHERE date         = ${new Date(dto.scheduleDate + 'T00:00:00')}
           AND version      = ${dto.expectedVersion}
           AND booked_slots < max_slots
       `;
@@ -224,8 +224,8 @@ export class OrderService {
     }
     if (query.dateFrom || query.dateTo) {
       where.scheduleDate = {};
-      if (query.dateFrom) where.scheduleDate.gte = new Date(query.dateFrom + 'T00:00:00.000Z');
-      if (query.dateTo) where.scheduleDate.lte = new Date(query.dateTo + 'T23:59:59.999Z');
+      if (query.dateFrom) where.scheduleDate.gte = new Date(query.dateFrom + 'T00:00:00');
+      if (query.dateTo) where.scheduleDate.lte = new Date(query.dateTo + 'T23:59:59');
     }
     if (query.keyword) {
       where.OR = [
@@ -276,6 +276,14 @@ export class OrderService {
   }
 
   // ─── Helpers ─────────────────────────────────────────
+
+  /**
+   * Build a local-time Date from a "YYYY-MM-DD" string.
+   * Always use this for DATE column comparisons — never append ".000Z".
+   */
+  private toLocalDate(dateStr: string): Date {
+    return new Date(dateStr + 'T00:00:00');
+  }
 
   private generateOrderNo(dateStr: string): string {
     const date = dateStr.replace(/-/g, '');

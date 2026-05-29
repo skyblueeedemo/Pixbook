@@ -1,8 +1,21 @@
 # 项目状态 · Project State
 
-> 最后更新：2026-05-26
-> 状态：🟢 已上线 (pixbook.top)
+> 最后更新：2026-07-29
+> 状态：🟡 已上线，Bug 修复中 (pixbook.top)
 > Git Tag: `v1.0.1`
+
+## 🔧 当前修复
+
+### 日期顺延 Bug（2026-07-29）
+- **根因**: 时区不安全的日期查询边界 — `new Date(localDate + 'T00:00:00.000Z')` 将本地日期当作 UTC 零点，在 UTC+8 服务器上 MySQL DATE 列比较偏移 8 小时
+- **影响**: `getCalendar`、`getAdminCalendar`、`listOrders`、`submit` 中所有日期边界查询
+- **修复**: 全部改为本地时区零点 `new Date(dateStr + 'T00:00:00')`；添加 `toLocalDate()` helper
+- **涉及文件**: `schedule.service.ts`、`order.service.ts`
+
+### 小程序 ERR_CONNECTION_RESET
+- **根因**: `IS_PROD = true` 硬编码连接 `https://pixbook.top/api`，生产服务器不可达
+- **修复**: 改用 `VITE_API_BASE` 环境变量 + `NODE_ENV` 自动判断；添加 15s 超时 + 错误日志
+- **涉及文件**: `apps/miniprogram/src/api/request.ts`
 
 ---
 

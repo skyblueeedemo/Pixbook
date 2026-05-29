@@ -12,12 +12,27 @@ type RequestOptions = UniApp.RequestOptions;
  * Prod:  HTTPS 域名（如 https://api.your-domain.com）
  *
  * 上线前改为正式域名，并确保微信公众平台已配置合法域名。
+ *
+ * 方式 1（推荐）: 构建时通过环境变量 VITE_API_BASE 控制
+ *   VITE_API_BASE=https://pixbook.top/api npm run build:mp-weixin
+ *   开发时不需要设置，默认为局域网 IP。
+ *
+ * 方式 2: 直接修改下方的 DEV_URL / PROD_URL
  */
 const DEV_URL = 'http://192.168.31.191:3000/api';
 const PROD_URL = 'https://pixbook.top/api';
 
-const IS_PROD = true; // ← 开发用 false（局域网 IP），部署服务器用 true
-const BASE_URL = IS_PROD ? PROD_URL : DEV_URL;
+// 优先使用环境变量，否则根据构建模式判断
+const API_BASE = typeof process !== 'undefined' && process.env?.VITE_API_BASE
+  ? process.env.VITE_API_BASE
+  : (typeof process !== 'undefined' && process.env?.NODE_ENV === 'production'
+    ? PROD_URL
+    : DEV_URL);
+
+const BASE_URL = API_BASE;
+
+// Log on startup — helps diagnose connection issues
+console.log('[Pixbook] API base:', BASE_URL);
 
 function request<T = unknown>(options: RequestOptions): Promise<T> {
   const sessionKey = uni.getStorageSync('session_key');
@@ -26,6 +41,7 @@ function request<T = unknown>(options: RequestOptions): Promise<T> {
     uni.request({
       ...options,
       url: `${BASE_URL}${options.url}`,
+      timeout: 15000, // 15s timeout — avoid indefinite hanging
       header: {
         'Content-Type': 'application/json',
         ...(sessionKey ? { 'X-Session-Key': sessionKey } : {}),
@@ -35,10 +51,14 @@ function request<T = unknown>(options: RequestOptions): Promise<T> {
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(res.data as T);
         } else {
+          console.warn('[Pixbook] HTTP', res.statusCode, options.url);
           reject(res);
         }
       },
-      fail: reject,
+      fail: (err) => {
+        console.error('[Pixbook] Network error:', options.url, JSON.stringify(err));
+        reject(err);
+      },
     });
   });
 }

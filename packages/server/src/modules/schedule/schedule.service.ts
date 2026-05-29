@@ -44,8 +44,8 @@ export class ScheduleService {
       this.prisma.schedule.findMany({
         where: {
           date: {
-            gte: new Date(start.format('YYYY-MM-DD') + 'T00:00:00.000Z'),
-            lte: new Date(start.add(days - 1, 'day').format('YYYY-MM-DD') + 'T00:00:00.000Z'),
+            gte: new Date(start.format('YYYY-MM-DD') + 'T00:00:00'),
+            lte: new Date(start.add(days - 1, 'day').format('YYYY-MM-DD') + 'T00:00:00'),
           },
         },
       }),
@@ -137,16 +137,16 @@ export class ScheduleService {
       this.prisma.schedule.findMany({
         where: {
           date: {
-            gte: new Date(start.format('YYYY-MM-DD') + 'T00:00:00.000Z'),
-            lte: new Date(start.add(daysInMonth - 1, 'day').format('YYYY-MM-DD') + 'T00:00:00.000Z'),
+            gte: new Date(start.format('YYYY-MM-DD') + 'T00:00:00'),
+            lte: new Date(start.add(daysInMonth - 1, 'day').format('YYYY-MM-DD') + 'T00:00:00'),
           },
         },
       }),
       this.prisma.order.findMany({
         where: {
           scheduleDate: {
-            gte: new Date(start.format('YYYY-MM-DD') + 'T00:00:00.000Z'),
-            lte: new Date(start.add(daysInMonth - 1, 'day').format('YYYY-MM-DD') + 'T00:00:00.000Z'),
+            gte: new Date(start.format('YYYY-MM-DD') + 'T00:00:00'),
+            lte: new Date(start.add(daysInMonth - 1, 'day').format('YYYY-MM-DD') + 'T00:00:00'),
           },
           status: { not: 4 },
         },
@@ -194,7 +194,7 @@ export class ScheduleService {
 
   /** Admin: update a single date (max_slots override or rest day) */
   async updateDate(dateStr: string, body: { maxSlots?: number; isRestDay?: boolean }): Promise<void> {
-    const date = new Date(dateStr + 'T00:00:00.000Z');
+    const date = new Date(dateStr + 'T00:00:00');
 
     if (body.isRestDay !== undefined) {
       const configs = await this.loadConfigs();
@@ -244,6 +244,14 @@ export class ScheduleService {
     }
 
     await this.invalidateCache();
+  }
+
+  /**
+   * Build a local-time Date from a "YYYY-MM-DD" string.
+   * Always use this for DATE column comparisons — never append ".000Z".
+   */
+  private toLocalDate(dateStr: string): Date {
+    return new Date(dateStr + 'T00:00:00');
   }
 
   private async loadConfigs() {
