@@ -120,7 +120,7 @@ const pad = computed(() => {
   return dayjs(days.value[0].date).day();
 });
 
-function dayNum(d: string) { return String(new Date(d).getDate()); }
+function dayNum(d: string) { return dayjs(d).date().toString(); }
 
 async function fetchMonth(m?: dayjs.Dayjs) {
   const month = m ?? currentMonth.value;

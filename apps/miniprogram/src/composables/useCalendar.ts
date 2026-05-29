@@ -53,6 +53,9 @@ export function useCalendar() {
       uni.setStorageSync(cacheKey, result);
       uni.setStorageSync(cacheKey + '_t', Date.now());
       days.value = result;
+    } catch (err) {
+      console.error('[Pixbook] fetchCalendar failed:', err);
+      uni.showToast({ title: '加载排期失败，请下拉刷新', icon: 'none' });
     } finally {
       loading.value = false;
     }

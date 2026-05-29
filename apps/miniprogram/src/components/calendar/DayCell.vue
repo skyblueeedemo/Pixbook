@@ -7,13 +7,14 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import dayjs from 'dayjs';
 import type { DayStatus } from '@/composables/useCalendar';
 
 const props = defineProps<{ day: DayStatus; isSelected: boolean; isToday: boolean }>();
 const emit = defineEmits<{ tap: [] }>();
 
 const dayNum = computed(() => {
-  try { return String(new Date(props.day.date).getDate()); }
+  try { return dayjs(props.day.date).date().toString(); }
   catch { return ''; }
 });
 

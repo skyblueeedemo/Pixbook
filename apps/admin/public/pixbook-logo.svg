@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF9A9E;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FECFEF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="lens" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#A8EDEA;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FED6E3;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- 背景圆形 -->
+  <circle cx="60" cy="60" r="55" fill="url(#bg)" stroke="#FFB6C1" stroke-width="2"/>
+
+  <!-- 相机主体 - 圆角矩形 -->
+  <rect x="25" y="35" width="70" height="50" rx="15" ry="15" fill="#FFF0F5" stroke="#FFB6C1" stroke-width="2"/>
+
+  <!-- 相机顶部 -->
+  <rect x="45" y="25" width="30" height="15" rx="8" ry="8" fill="#FFF0F5" stroke="#FFB6C1" stroke-width="2"/>
+
+  <!-- 镜头外圈 -->
+  <circle cx="60" cy="60" r="18" fill="url(#lens)" stroke="#FFB6C1" stroke-width="2"/>
+
+  <!-- 镜头内圈 -->
+  <circle cx="60" cy="60" r="12" fill="#FFF5F5" stroke="#FFB6C1" stroke-width="1.5"/>
+
+  <!-- 镜头高光 -->
+  <circle cx="55" cy="55" r="5" fill="#FFFFFF" opacity="0.8"/>
+
+  <!-- 可爱的眼睛左 -->
+  <ellipse cx="45" cy="50" rx="4" ry="5" fill="#333"/>
+  <circle cx="43" cy="48" r="1.5" fill="#FFF"/>
+
+  <!-- 可爱的眼睛右 -->
+  <ellipse cx="75" cy="50" rx="4" ry="5" fill="#333"/>
+  <circle cx="73" cy="48" r="1.5" fill="#FFF"/>
+
+  <!-- 可爱的嘴巴 -->
+  <path d="M55 70 Q60 75 65 70" fill="none" stroke="#FF69B4" stroke-width="2" stroke-linecap="round"/>
+
+  <!-- 腮红左 -->
+  <circle cx="38" cy="65" r="6" fill="#FFB6C1" opacity="0.6"/>
+
+  <!-- 腮红右 -->
+  <circle cx="82" cy="65" r="6" fill="#FFB6C1" opacity="0.6"/>
+
+  <!-- 闪光灯 -->
+  <circle cx="80" cy="40" r="3" fill="#FFD700"/>
+  <circle cx="80" cy="40" r="1.5" fill="#FFF8DC"/>
+
+  <!-- 小装饰 - 星星 -->
+  <path d="M20 20 L22 25 L27 25 L23 28 L24 33 L20 30 L16 33 L17 28 L13 25 L18 25 Z" fill="#FFD700" opacity="0.8"/>
+
+  <!-- 小装饰 - 心形 -->
+  <path d="M95 25 C95 20 100 20 100 25 C100 20 105 20 105 25 C105 30 100 35 100 35 C100 35 95 30 95 25 Z" fill="#FF69B4" opacity="0.8"/>
+</svg>

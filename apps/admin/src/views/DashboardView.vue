@@ -115,7 +115,8 @@ const tableTitle = computed(() => {
 async function loadAll() {
   loading.value = true;
   try {
-    const today = new Date().toISOString().slice(0, 10);
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const thisMonth = today.slice(0, 7);
 
     // Fetch all stats in parallel (individual error handling)
@@ -150,7 +151,8 @@ async function loadAll() {
 
 async function fetchOrders() {
   try {
-    const today = new Date().toISOString().slice(0, 10);
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const thisMonth = today.slice(0, 7);
 
     // If summary filter active
