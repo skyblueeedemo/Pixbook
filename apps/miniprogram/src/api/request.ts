@@ -22,14 +22,9 @@ type RequestOptions = UniApp.RequestOptions;
 const DEV_URL = 'http://192.168.31.191:3000/api';
 const PROD_URL = 'https://pixbook.top/api';
 
-// 优先使用环境变量，否则根据构建模式判断
-const API_BASE = typeof process !== 'undefined' && process.env?.VITE_API_BASE
-  ? process.env.VITE_API_BASE
-  : (typeof process !== 'undefined' && process.env?.NODE_ENV === 'production'
-    ? PROD_URL
-    : DEV_URL);
-
-const BASE_URL = API_BASE;
+// 默认走生产地址；本地调试时设置 VITE_API_BASE=http://192.168.31.191:3000/api
+const BASE_URL = (typeof process !== 'undefined' && process.env?.VITE_API_BASE)
+  || PROD_URL;
 
 // Log on startup — helps diagnose connection issues
 console.log('[Pixbook] API base:', BASE_URL);
